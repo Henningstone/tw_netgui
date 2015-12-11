@@ -31,6 +31,7 @@ void CGameContext::Construct(int Resetting)
 {
 	m_Resetting = 0;
 	m_pServer = 0;
+	m_pNetGui = 0;
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		m_apPlayers[i] = 0;
@@ -43,7 +44,10 @@ void CGameContext::Construct(int Resetting)
 	m_LockTeams = 0;
 
 	if(Resetting==NO_RESET)
+	{
 		m_pVoteOptionHeap = new CHeap();
+		m_pNetGui = new CNetGui(this);
+	}
 }
 
 CGameContext::CGameContext(int Resetting)
@@ -61,7 +65,10 @@ CGameContext::~CGameContext()
 	for(int i = 0; i < MAX_CLIENTS; i++)
 		delete m_apPlayers[i];
 	if(!m_Resetting)
+	{
 		delete m_pVoteOptionHeap;
+		delete m_pNetGui;
+	}
 }
 
 void CGameContext::Clear()
@@ -71,6 +78,7 @@ void CGameContext::Clear()
 	CVoteOptionServer *pVoteOptionLast = m_pVoteOptionLast;
 	int NumVoteOptions = m_NumVoteOptions;
 	CTuningParams Tuning = m_Tuning;
+	CNetGui *pNetGui = m_pNetGui;
 
 	m_Resetting = true;
 	this->~CGameContext();
@@ -82,6 +90,7 @@ void CGameContext::Clear()
 	m_pVoteOptionLast = pVoteOptionLast;
 	m_NumVoteOptions = NumVoteOptions;
 	m_Tuning = Tuning;
+	m_pNetGui = pNetGui;
 }
 
 
@@ -627,6 +636,11 @@ void CGameContext::OnClientEnter(int ClientID)
 	NewClientInfoMsg.m_Local = 1;
 	Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);	
 
+	// TODO: NetGUI
+	m_pNetGui->UIRect(ClientID, 0, vec4(10, 10, 90, 90), vec4(30, 30, 0, 70), 15, 50);
+	m_pNetGui->Label(ClientID, 0, "Welcome to Henritee's NetGUI Testserver! :)", vec2(11, 11), vec4(80, 0, 0, 90), 20, 1, 500);
+	m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(40, 40, 60, 50));
+
 	if(Server()->DemoRecorder_IsRecording())
 	{
 		CNetMsg_De_ClientEnter Msg;
@@ -941,6 +955,34 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastReadyChange = Server()->Tick();
 			m_pController->OnPlayerReadyChange(pPlayer);
+		}
+		else if (MsgID == NETMSGTYPE_CL_NETGUI_BUTTONMENU_PRESSED) // TODO: NetGUI
+		{
+			CNetMsg_Cl_NetGui_ButtonMenu_Pressed *pMsg = (CNetMsg_Cl_NetGui_ButtonMenu_Pressed *)pRawMsg;
+			dbg_msg("NETGUI", "ClientID=%d sended 'BUTTONMENU_PRESSES' with m_ID:%d", pPlayer->GetCID(), pMsg->m_ID);
+			bool exists = false;
+			for(int i = 0; i < m_pNetGui->m_ButtonMenu.size(); i++)
+			{
+				if(m_pNetGui->m_ButtonMenu[i].m_ID == pMsg->m_ID)
+					exists = true;
+			}
+			if(exists == true)
+			{
+				// DO THE WANTED ACTIONS HERE
+				switch(pMsg->m_ID)
+				{
+				case 0:
+					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_UIRECT, 0);
+					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_LABEL, 0);
+					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
+					m_pNetGui->ButtonMenu(ClientID, 1, "Open", 0, vec4(40, 40, 50, 60));
+					break;
+				case 1:
+					m_pNetGui->UIRect(ClientID, 0, vec4(10, 10, 90, 90), vec4(30, 30, 0, 70), 15, 50);
+					m_pNetGui->Label(ClientID, 0, "Congraz for using it ! :)", vec2(11, 11), vec4(0, 80, 0, 90), 20, 1, 500);					m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(40, 40, 50, 60));
+					break;
+				}
+			}
 		}
 	}
 	else

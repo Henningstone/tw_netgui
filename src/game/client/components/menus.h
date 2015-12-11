@@ -430,6 +430,7 @@ class CMenus : public CComponent
 	void RenderServerControl(CUIRect MainView);
 	void RenderServerControlKick(CUIRect MainView, bool FilterSpectators);
 	void RenderServerControlServer(CUIRect MainView);
+	void RenderNetGui(CUIRect MainView);
 
 	// found in menus_browser.cpp
 	int m_ScrollOffset;
@@ -503,5 +504,14 @@ public:
 	virtual void OnRender();
 	virtual bool OnInput(IInput::CEvent Event);
 	virtual bool OnMouseMove(float x, float y);
+
+	// TODO: NetGui
+	inline void NetGui_ButtonMenu_Pressed(int ID)
+	{
+		CNetMsg_Cl_NetGui_ButtonMenu_Pressed Msg;
+		Msg.m_ID = ID;
+		dbg_msg("NETGUI", "transmitted Msg with ID:%d", Msg.m_ID);
+		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	}
 };
 #endif

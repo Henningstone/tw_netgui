@@ -332,6 +332,43 @@ Messages = [
 
 	NetMessage("Sv_GameMsg", []),
 
+	## netgui messages
+	NetMessage("Sv_NetGui_RemoveElement", [
+		NetIntAny("m_Type"),
+		NetIntAny("m_ID"),
+	]),
+
+	NetMessage("Sv_NetGui_UIRect", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetArray(NetIntRange("m_Color", 0, 100), 4),
+		NetIntRange("m_Corner", 0, 255),
+		NetIntRange("m_RoundingX10", 0, 500),
+	]),
+
+	NetMessage("Sv_NetGui_Label", [
+		NetIntAny("m_ID"),
+		NetString("m_Text"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetArray(NetIntRange("m_Color", 0, 100), 4),
+		NetIntAny("m_FontSize"),
+		NetIntRange("m_FontAlign", 0, 2),
+		NetIntAny("m_MaxTextWidth"),		
+	]),
+
+	NetMessage("Sv_NetGui_ButtonMenu", [
+		NetIntAny("m_ID"),
+		NetString("m_Text"),
+		NetIntRange("m_Checked", 0, 1),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+	##	NetArray(NetIntRange("m_Color", 0, 100), 4),
+	]),
+	NetMessage("Cl_NetGui_ButtonMenu_Pressed", [
+		NetIntAny("m_ID"),
+	]),
+
+
+
 	## Demo messages
 	NetMessage("De_ClientEnter", [
 		NetStringStrict("m_pName"),

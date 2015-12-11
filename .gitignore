@@ -9,3 +9,7 @@ scripts/work/
 /SDL.dll
 /freetype.dll
 /autoexec.cfg
+*~
+.settings*
+/objs
+*.o

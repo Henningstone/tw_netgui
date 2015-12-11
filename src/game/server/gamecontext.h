@@ -9,6 +9,7 @@
 #include <game/layers.h>
 #include <game/voting.h>
 
+#include "netgui.h"
 #include "eventhandler.h"
 #include "gameworld.h"
 
@@ -41,6 +42,7 @@ class CGameContext : public IGameServer
 	CCollision m_Collision;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
+	CNetGui *m_pNetGui;
 
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
@@ -148,6 +150,24 @@ public:
 	void SendGameMsg(int GameMsgID, int ClientID);
 	void SendGameMsg(int GameMsgID, int ParaI1, int ClientID);
 	void SendGameMsg(int GameMsgID, int ParaI1, int ParaI2, int ParaI3, int ClientID);
+
+	template<class T>
+	int SendNetGui(int ClientID, T Msg)
+	{
+		if(ClientID < 0)
+		{
+			for(int i = 0; i < MAX_CLIENTS; ++i)
+			{
+				if(!m_apPlayers[i] /*|| !Server()->ClientIngame(i)*/)
+					continue;
+
+				dbg_msg("NETGUI", "SENDING NETGUI TO ID: %i", i);
+				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
+			}
+		}
+		else
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	}
 
 	//
 	void CheckPureTuning();

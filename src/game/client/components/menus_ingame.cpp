@@ -27,6 +27,9 @@ void CMenus::RenderGame(CUIRect MainView)
 	if(m_pClient->m_LocalClientID == -1)
 		return;
 
+	// NetGui
+	RenderNetGui(MainView);
+
 	char aBuf[128];
 	const char *pNotification = 0;
 	int TeamMod = m_pClient->m_aClients[m_pClient->m_LocalClientID].m_Team != TEAM_SPECTATORS ? -1 : 0;
@@ -454,6 +457,88 @@ void CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 
 	Selected = UiDoListboxEnd(&s_ScrollValue, 0);
 	m_CallvoteSelectedPlayer = Selected != -1 ? aPlayerIDs[Selected] : -1;
+}
+
+// TODO: NetGui
+void CMenus::RenderNetGui(CUIRect MainView)
+{
+	// UIRect
+	for(int i = 0; i < Client()->m_NetGuiUIRect.size(); i++)
+	{
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_UIRect e = Client()->m_NetGuiUIRect[i];
+
+		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
+		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
+		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = x1;
+		Rect.y = y1;
+		Rect.w = x2 - x1;
+		Rect.h = y2 - y1;
+
+		vec4 Color = vec4(
+				e.m_Color[0]/100.0f,
+				e.m_Color[1]/100.0f,
+				e.m_Color[2]/100.0f,
+				e.m_Color[3]/100.0f);
+		RenderTools()->DrawUIRect(&Rect, Color, e.m_Corner, e.m_RoundingX10/10.0f);
+
+	}
+
+	// Label
+	for(int i = 0; i < Client()->m_NetGuiLabel.size(); i++)
+	{
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_Label e = Client()->m_NetGuiLabel[i];
+
+		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
+		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
+		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = x1;
+		Rect.y = y1;
+		Rect.w = x2 - x1;
+		Rect.h = y2 - y1;
+
+		TextRender()->TextColor(
+				e.m_Color[0]/100.0f,
+				e.m_Color[1]/100.0f,
+				e.m_Color[2]/100.0f,
+				e.m_Color[3]/100.0f);
+
+		// Welches der beiden ist besser ???? (is glaub egal, hm)
+		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth);
+		/*UI()->DoLabel(&Rect,
+				e.m_Text,
+				e.m_FontSize,
+				e.m_FontAlign == 0 ? CUI::ALIGN_LEFT : e.m_FontAlign == 1 ? CUI::ALIGN_CENTER : CUI::ALIGN_RIGHT,
+				e.m_MaxTextWidth);*/
+	}
+
+	// ButtonMenu
+	for(int i = 0; i < Client()->m_NetGuiButtonMenu.size(); i++)
+	{
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_ButtonMenu e = Client()->m_NetGuiButtonMenu[i];
+
+		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
+		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
+		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = x1;
+		Rect.y = y1;
+		Rect.w = x2 - x1;
+		Rect.h = y2 - y1;
+
+		int ButtonID=0; // this causes fading to fail, but whatever... we cannot use &e!
+		if(DoButton_Menu(&ButtonID, e.m_Text, e.m_Checked, &Rect))
+		{
+			//dbg_msg("NETGUI", "sending ButtonPressed with ID:%d", e.m_ID);
+			NetGui_ButtonMenu_Pressed(e.m_ID);
+		}
+	}
+
 }
 
 void CMenus::HandleCallvote(int Page, bool Force)
