@@ -25,4 +25,11 @@ Originally written by Magnus Auvinen.
 ##NetGUI Modification
 #####by Henritees
 
+The NetGUI project is a universal and easy to implement modification for Teeworlds. It gives the ability to the server to send custom GUIs to the client which build upon the existing menus.
+
+You can embed it into your own mod by simply adding it's files and a few lines of copy-paste code to the game.
+
+Both, client and server, need to support this feature. To play on servers which use it, you can use the client provided within this repo.
+
+
 Licence: You are free to use this in your mod (non-commercial aswell as commercial) without asking, as long as you give credit to me. Thanks.
