@@ -27,9 +27,9 @@ protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 
 private:
-	sorted_array<CNetMsg_Sv_NetGui_UIRect> m_UIRect;
-	sorted_array<CNetMsg_Sv_NetGui_Label> m_Label;
-public:	sorted_array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu; private:
+	array<CNetMsg_Sv_NetGui_UIRect> m_UIRect;
+	array<CNetMsg_Sv_NetGui_Label> m_Label;
+public:	array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu; private:
 
 };
 

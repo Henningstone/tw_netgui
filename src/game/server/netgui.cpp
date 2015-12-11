@@ -53,7 +53,7 @@ void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color
 	Msg.m_Corner = Corner;
 	Msg.m_RoundingX10 = RoundingX10;
 
-	m_UIRect.add_unsorted(Msg);
+	m_UIRect.add(Msg);
 
 	GameServer()->SendNetGui(ClientID, Msg);
 }
@@ -76,7 +76,7 @@ void CNetGui::Label(int ClientID, int NetGuiElemID, const char *pText, vec2 Pos,
 	Msg.m_FontAlign = FontAlign;
 	Msg.m_MaxTextWidth = MaxTextWidth;
 
-	m_Label.add_unsorted(Msg);
+	m_Label.add(Msg);
 
 	GameServer()->SendNetGui(ClientID, Msg);
 }
@@ -93,7 +93,7 @@ void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int 
 	Msg.m_Dimension[2] = Dimensions.a;
 	Msg.m_Dimension[3] = Dimensions.b;
 
-	m_ButtonMenu.add_unsorted(Msg);
+	m_ButtonMenu.add(Msg);
 
 	GameServer()->SendNetGui(ClientID, Msg);
 }

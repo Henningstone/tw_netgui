@@ -36,12 +36,12 @@ protected:
 
 public:
 	// NetGui TODO: May I move these out of here, into gameclient? better not
-	sorted_array<CNetMsg_Sv_NetGui_UIRect> m_NetGuiUIRect;
-	sorted_array<CNetMsg_Sv_NetGui_Label> m_NetGuiLabel;
-	sorted_array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
+	array<CNetMsg_Sv_NetGui_UIRect> m_NetGuiUIRect;
+	array<CNetMsg_Sv_NetGui_Label> m_NetGuiLabel;
+	array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
 	// XXX: This might be a bit hacky. Nevermind. Maxsort written by Henritees (therefore shit :/).
 	template<class T>
-	void SortNetGuiList(sorted_array<T> &elem)
+	void SortNetGuiList(array<T> &elem)
 	{
 		int num = elem.size();
 		if(num < 2)
