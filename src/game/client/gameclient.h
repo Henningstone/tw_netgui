@@ -264,6 +264,7 @@ public:
 	class CBroadcast *m_pBroadcast;
 	class CParticles *m_pParticles;
 	class CMenus *m_pMenus;
+	class CNetGui *m_pNetGui;
 	class CSkins *m_pSkins;
 	class CCountryFlags *m_pCountryFlags;
 	class CFlow *m_pFlow;

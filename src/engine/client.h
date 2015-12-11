@@ -35,38 +35,6 @@ protected:
 	int m_GameTickSpeed;
 
 public:
-	// NetGui TODO: May I move these out of here, into gameclient? better not
-	array<CNetMsg_Sv_NetGui_UIRect> m_NetGuiUIRect;
-	array<CNetMsg_Sv_NetGui_Label> m_NetGuiLabel;
-	array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
-	// XXX: This might be a bit hacky. Nevermind. Maxsort written by Henritees (therefore shit :/).
-	template<class T>
-	void SortNetGuiList(array<T> &elem)
-	{
-		int num = elem.size();
-		if(num < 2)
-			return;
-		int max = 0;
-		T temp;
-		for(int i = 0; i < num; i++)
-		{
-			max = i;
-			for(int j = i; i < num; j++)
-			{
-				if(elem[i].m_ID > elem[max].m_ID)
-					max = i;
-			}
-
-			if(max == i)
-				continue;
-			temp = elem[i];
-			elem[i] = elem[max];
-			elem[max] = temp;
-		}
-	}
-
-
-
 	class CSnapItem
 	{
 	public:

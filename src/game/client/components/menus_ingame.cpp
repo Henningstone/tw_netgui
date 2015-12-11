@@ -19,6 +19,7 @@
 #include <game/client/ui.h>
 
 #include "menus.h"
+#include "netgui.h"
 #include "motd.h"
 #include "voting.h"
 
@@ -463,10 +464,10 @@ void CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 void CMenus::RenderNetGui(CUIRect MainView)
 {
 	// UIRect
-	for(int i = 0; i < Client()->m_NetGuiUIRect.size(); i++)
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiUIRect.size(); i++)
 	{
 		CUIRect Rect;
-		CNetMsg_Sv_NetGui_UIRect e = Client()->m_NetGuiUIRect[i];
+		CNetMsg_Sv_NetGui_UIRect e = m_pClient->m_pNetGui->m_NetGuiUIRect[i];
 
 		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
 		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
@@ -487,10 +488,10 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	}
 
 	// Label
-	for(int i = 0; i < Client()->m_NetGuiLabel.size(); i++)
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiLabel.size(); i++)
 	{
 		CUIRect Rect;
-		CNetMsg_Sv_NetGui_Label e = Client()->m_NetGuiLabel[i];
+		CNetMsg_Sv_NetGui_Label e = m_pClient->m_pNetGui->m_NetGuiLabel[i];
 
 		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
 		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
@@ -517,10 +518,10 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	}
 
 	// ButtonMenu
-	for(int i = 0; i < Client()->m_NetGuiButtonMenu.size(); i++)
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiButtonMenu.size(); i++)
 	{
 		CUIRect Rect;
-		CNetMsg_Sv_NetGui_ButtonMenu e = Client()->m_NetGuiButtonMenu[i];
+		CNetMsg_Sv_NetGui_ButtonMenu e = m_pClient->m_pNetGui->m_NetGuiButtonMenu[i];
 
 		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
 		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;

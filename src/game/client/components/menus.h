@@ -483,6 +483,16 @@ class CMenus : public CComponent
 	void ToggleMusic();
 
 	void SetMenuPage(int NewPage);
+
+	// TODO: NetGui
+	inline void NetGui_ButtonMenu_Pressed(int ID)
+	{
+		CNetMsg_Cl_NetGui_ButtonMenu_Pressed Msg;
+		Msg.m_ID = ID;
+		dbg_msg("NETGUI", "transmitted Msg with ID:%d", Msg.m_ID);
+		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	}
+
 public:
 	void RenderBackground();
 
@@ -502,17 +512,7 @@ public:
 	virtual void OnStateChange(int NewState, int OldState);
 	virtual void OnReset();
 	virtual void OnRender();
-	virtual void OnMessage(int MsgId, void *pRawMsg);
 	virtual bool OnInput(IInput::CEvent Event);
 	virtual bool OnMouseMove(float x, float y);
-
-	// TODO: NetGui
-	inline void NetGui_ButtonMenu_Pressed(int ID)
-	{
-		CNetMsg_Cl_NetGui_ButtonMenu_Pressed Msg;
-		Msg.m_ID = ID;
-		dbg_msg("NETGUI", "transmitted Msg with ID:%d", Msg.m_ID);
-		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
-	}
 };
 #endif
