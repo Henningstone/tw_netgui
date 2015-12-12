@@ -634,12 +634,7 @@ void CGameContext::OnClientEnter(int ClientID)
 
 	// local info
 	NewClientInfoMsg.m_Local = 1;
-	Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);	
-
-	// TODO: NetGUI
-	m_pNetGui->UIRect(ClientID, 0, vec4(10, 10, 90, 90), vec4(30, 30, 0, 70), 15, 50);
-	m_pNetGui->Label(ClientID, 0, "Welcome to Henritee's NetGUI Testserver! :)", vec2(11, 11), vec4(80, 0, 0, 90), 20, 1, 500);
-	m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(40, 40, 60, 50));
+	Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL|MSGFLAG_NORECORD, ClientID);
 
 	if(Server()->DemoRecorder_IsRecording())
 	{
@@ -648,6 +643,13 @@ void CGameContext::OnClientEnter(int ClientID)
 		Msg.m_Team = NewClientInfoMsg.m_Team;
 		Server()->SendPackMsg(&Msg, MSGFLAG_NOSEND, -1);
 	}
+
+	// send NetGui
+	// TODO
+	m_pNetGui->UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
+	m_pNetGui->Label(ClientID, 0, ">)^_^)> Welcome to Henritee's NetGUI Testserver! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
+	m_pNetGui->Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 500);
+	m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(50-10, 50+10, 50-5, 50+5));
 }
 
 void CGameContext::OnClientConnected(int ClientID, bool Dummy)
@@ -699,6 +701,8 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 	m_apPlayers[ClientID] = 0;
 
 	m_VoteUpdate = true;
+
+	m_pNetGui->OnClientDrop(ClientID);
 }
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
@@ -956,14 +960,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_LastReadyChange = Server()->Tick();
 			m_pController->OnPlayerReadyChange(pPlayer);
 		}
-		else if (MsgID == NETMSGTYPE_CL_NETGUI_BUTTONMENU_PRESSED) // TODO: NetGUI
+		else if (MsgID == NETMSGTYPE_CL_NETGUI_BUTTONMENU_PRESSED) // TODO: NetGUI // TODO: Put into NetGUi-class
 		{
 			CNetMsg_Cl_NetGui_ButtonMenu_Pressed *pMsg = (CNetMsg_Cl_NetGui_ButtonMenu_Pressed *)pRawMsg;
-			dbg_msg("NETGUI", "ClientID=%d sended 'BUTTONMENU_PRESSES' with m_ID:%d", pPlayer->GetCID(), pMsg->m_ID);
+			//dbg_msg("NETGUI", "ClientID=%d sended 'BUTTONMENU_PRESSES' with m_ID:%d", pPlayer->GetCID(), pMsg->m_ID);
 			bool exists = false;
-			for(int i = 0; i < m_pNetGui->m_ButtonMenu.size(); i++)
+			for(int i = 0; i < m_pNetGui->GetButtonMenu(ClientID).size(); i++)
 			{
-				if(m_pNetGui->m_ButtonMenu[i].m_ID == pMsg->m_ID)
+				if(m_pNetGui->GetButtonMenu(ClientID)[i].m_ID == pMsg->m_ID)
 					exists = true;
 			}
 			if(exists == true)
@@ -974,12 +978,16 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				case 0:
 					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_UIRECT, 0);
 					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_LABEL, 0);
+					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_LABEL, 1);
 					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
-					m_pNetGui->ButtonMenu(ClientID, 1, "Open", 0, vec4(40, 40, 50, 60));
+					m_pNetGui->ButtonMenu(ClientID, 1, "Open", 0, vec4(50-10, 50+10, 50-5, 50+5));
 					break;
 				case 1:
-					m_pNetGui->UIRect(ClientID, 0, vec4(10, 10, 90, 90), vec4(30, 30, 0, 70), 15, 50);
-					m_pNetGui->Label(ClientID, 0, "Congraz for using it ! :)", vec2(11, 11), vec4(0, 80, 0, 90), 20, 1, 500);					m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(40, 40, 50, 60));
+					m_pNetGui->UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
+					m_pNetGui->Label(ClientID, 0, ">)^_^)> Welcome to Henritee's NetGUI Testserver! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
+					m_pNetGui->Label(ClientID, 1, "(: Congraz for using it! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 50, 0, 80), 20, 1, 500);
+					m_pNetGui->RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_BUTTONMENU, 1);
+					m_pNetGui->ButtonMenu(ClientID, 0, "Close", 0, vec4(50-10, 50+10, 50-5, 50+5));
 					break;
 				}
 			}

@@ -28,9 +28,6 @@ void CMenus::RenderGame(CUIRect MainView)
 	if(m_pClient->m_LocalClientID == -1)
 		return;
 
-	// NetGui
-	RenderNetGui(MainView);
-
 	char aBuf[128];
 	const char *pNotification = 0;
 	int TeamMod = m_pClient->m_aClients[m_pClient->m_LocalClientID].m_Team != TEAM_SPECTATORS ? -1 : 0;
@@ -188,6 +185,12 @@ void CMenus::RenderGame(CUIRect MainView)
 	static int s_DisconnectButton = 0;
 	if(DoButton_Menu(&s_DisconnectButton, Localize("Disconnect"), 0, &Right))
 		Client()->Disconnect();
+
+	// NetGui
+	// keep empty space at the top for notifications
+	if(!pNotification)
+		MainView.HSplitTop(45.0f, 0, &MainView);
+	RenderNetGui(MainView);
 }
 
 void CMenus::RenderPlayers(CUIRect MainView)
@@ -469,14 +472,14 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_UIRect e = m_pClient->m_pNetGui->m_NetGuiUIRect[i];
 
-		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
-		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
-		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = x1;
-		Rect.y = y1;
-		Rect.w = x2 - x1;
-		Rect.h = y2 - y1;
+		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
 
 		vec4 Color = vec4(
 				e.m_Color[0]/100.0f,
@@ -493,14 +496,14 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_Label e = m_pClient->m_pNetGui->m_NetGuiLabel[i];
 
-		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
-		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
-		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = x1;
-		Rect.y = y1;
-		Rect.w = x2 - x1;
-		Rect.h = y2 - y1;
+		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
 
 		TextRender()->TextColor(
 				e.m_Color[0]/100.0f,
@@ -508,7 +511,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e.m_Color[2]/100.0f,
 				e.m_Color[3]/100.0f);
 
-		// Welches der beiden ist besser ???? (is glaub egal, hm)
+		// i'd prefer to use the second one, but it makes the game hung O_O
 		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth);
 		/*UI()->DoLabel(&Rect,
 				e.m_Text,
@@ -516,6 +519,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e.m_FontAlign == 0 ? CUI::ALIGN_LEFT : e.m_FontAlign == 1 ? CUI::ALIGN_CENTER : CUI::ALIGN_RIGHT,
 				e.m_MaxTextWidth);*/
 	}
+	TextRender()->TextColor(1,1,1,1);
 
 	// ButtonMenu
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiButtonMenu.size(); i++)
@@ -523,14 +527,14 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_ButtonMenu e = m_pClient->m_pNetGui->m_NetGuiButtonMenu[i];
 
-		float x1 = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float x2 = MainView.x + ((float)e.m_Dimension[2]/100.0f) * MainView.w;
-		float y1 = MainView.y + ((float)e.m_Dimension[1]/100.0f) * MainView.h;
-		float y2 = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = x1;
-		Rect.y = y1;
-		Rect.w = x2 - x1;
-		Rect.h = y2 - y1;
+		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
 
 		int ButtonID=0; // this causes fading to fail, but whatever... we cannot use &e!
 		if(DoButton_Menu(&ButtonID, e.m_Text, e.m_Checked, &Rect))

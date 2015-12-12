@@ -70,10 +70,13 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_RoundingX10 = pMsg->m_RoundingX10;
 
 		// check for duplicated IDs and overwrite them
-		for(int i = 0; m_NetGuiUIRect.size(); i++)
+		if(m_NetGuiUIRect.size() > 1)
 		{
-			if(m_NetGuiUIRect[i].m_ID == e.m_ID)
-				m_NetGuiUIRect.remove_index(i);
+			for(int i = 0; m_NetGuiUIRect.size(); i++)
+			{
+				if(m_NetGuiUIRect[i].m_ID == e.m_ID)
+					m_NetGuiUIRect.remove_index(i);
+			}
 		}
 
 		// save the element and resort the list
@@ -81,8 +84,8 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		SortNetGuiList<CNetMsg_Sv_NetGui_UIRect>(m_NetGuiUIRect);
 
 		dbg_msg("NETGUI", "RECEIVED RECT ID:%d, num=%i", e.m_ID, m_NetGuiUIRect.size());
-		for(int i = 0; i < m_NetGuiLabel.size(); i++)
-			dbg_msg("NETGUI", " Rect IDs: %d", m_NetGuiUIRect[i].m_ID);
+		for(int i = 0; i < m_NetGuiUIRect.size(); i++)
+			dbg_msg("NETGUI", " Rect IDs: %i=%d", i, m_NetGuiUIRect[i].m_ID);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_LABEL)
 	{
@@ -90,11 +93,10 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 
 		// setup a new element for our list
 		CNetMsg_Sv_NetGui_Label e;
+
 		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
-		//char* pString = (char*)mem_alloc(sizeof(aBuf), 0);
-		//str_copy(pString, pMsg->m_Text, sizeof(pMsg->m_Text));
 		e.m_Text = aBuf;//pString;
 		e.m_Dimension[0] = pMsg->m_Dimension[0];
 		e.m_Dimension[1] = pMsg->m_Dimension[1];
@@ -108,19 +110,22 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_FontAlign = pMsg->m_FontAlign;
 
 		// check for duplicated IDs and overwrite them
-		for(int i = 0; m_NetGuiLabel.size(); i++)
+		if(m_NetGuiLabel.size() > 1)
 		{
-			if(m_NetGuiLabel[i].m_ID == e.m_ID)
-				m_NetGuiLabel.remove_index(i);
+			for(int i = 0; i < m_NetGuiLabel.size(); i++)
+			{
+				if(m_NetGuiLabel[i].m_ID == e.m_ID)
+					m_NetGuiLabel.remove_index(i);
+			}
 		}
 
 		// save the element and resort the list
 		m_NetGuiLabel.add(e);
+		dbg_msg("NETGUI", "RECEIVED LABEL ID:%d, num=%i", e.m_ID, m_NetGuiLabel.size());
 		SortNetGuiList<CNetMsg_Sv_NetGui_Label>(m_NetGuiLabel);
 
-		dbg_msg("NETGUI", "RECEIVED LABEL ID:%d, num=%i", e.m_ID, m_NetGuiLabel.size());
 		for(int i = 0; i < m_NetGuiLabel.size(); i++)
-			dbg_msg("NETGUI", " Label IDs: %d", m_NetGuiLabel[i].m_ID);
+			dbg_msg("NETGUI", " Label IDs: %i=%d", i, m_NetGuiLabel[i].m_ID);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_BUTTONMENU)
 	{
@@ -128,12 +133,11 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 
 		// setup a new element for our list
 		CNetMsg_Sv_NetGui_ButtonMenu e;
+
 		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
-		//char* pString = (char*)mem_alloc(sizeof(aBuf), 0);
-		//str_copy(pString, pMsg->m_Text, sizeof(pMsg->m_Text));
-		e.m_Text = aBuf;//pString;
+		e.m_Text = aBuf;
 		e.m_Dimension[0] = pMsg->m_Dimension[0];
 		e.m_Dimension[1] = pMsg->m_Dimension[1];
 		e.m_Dimension[2] = pMsg->m_Dimension[2];
@@ -141,11 +145,12 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_Checked = pMsg->m_Checked;
 
 		// check for duplicated IDs and overwrite them
-		for(int i = 0; m_NetGuiButtonMenu.size(); i++)
+		if(m_NetGuiButtonMenu.size() > 1)
 		{
-			if(m_NetGuiButtonMenu[i].m_ID == e.m_ID)
+			for(int i = 0; i < m_NetGuiButtonMenu.size(); i++)
 			{
-				m_NetGuiButtonMenu.remove_index(i);
+				if(m_NetGuiButtonMenu[i].m_ID == e.m_ID)
+					m_NetGuiButtonMenu.remove_index(i);
 			}
 		}
 
@@ -155,6 +160,6 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 
 		dbg_msg("NETGUI", "RECEIVED BUTTON ID:%d, num=%i", e.m_ID, m_NetGuiButtonMenu.size());
 		for(int i = 0; i < m_NetGuiButtonMenu.size(); i++)
-			dbg_msg("NETGUI", " Button IDs: %d", m_NetGuiButtonMenu[i].m_ID);
+			dbg_msg("NETGUI", " Button IDs: %i=%d", i, m_NetGuiButtonMenu[i].m_ID);
 	}
 }
