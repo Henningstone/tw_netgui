@@ -1,3 +1,5 @@
+// Copyright (c) 2015 Henritees
+
 #ifndef GAME_CLIENT_COMPONENTS_NETGUI_H
 #define GAME_CLIENT_COMPONENTS_NETGUI_H
 

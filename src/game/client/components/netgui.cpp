@@ -1,3 +1,5 @@
+// Copyright (c) 2015 Henritees
+
 #include "netgui.h"
 
 

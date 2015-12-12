@@ -1,3 +1,5 @@
+// Copyright (c) 2015 Henritees
+
 #ifndef GAME_SERVER_NETGUI_H
 #define GAME_SERVER_NETGUI_H
 
@@ -6,6 +8,9 @@
 #include <game/server/gamecontroller.h>
 #include <engine/shared/protocol.h>
 #include <generated/protocol.h>
+
+#include "player.h"
+
 
 class CNetGui
 {
@@ -18,7 +23,9 @@ public:
 	void Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dimensions, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth);
 	void ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int Checked, vec4 Dimensions);
 
+	void OnClientEnter(int ClientID);
 	void OnClientDrop(int ClientID); // nah
+	void OnMessage(int MsgID, void *pRawMsg, int ClientID);
 
 	array<CNetMsg_Sv_NetGui_ButtonMenu> &GetButtonMenu(int ClientID) { return m_ButtonMenu[ClientID]; }
 
