@@ -484,15 +484,6 @@ class CMenus : public CComponent
 
 	void SetMenuPage(int NewPage);
 
-	// TODO: NetGui
-	inline void NetGui_ButtonMenu_Pressed(int ID)
-	{
-		CNetMsg_Cl_NetGui_ButtonMenu_Pressed Msg;
-		Msg.m_ID = ID;
-		dbg_msg("NETGUI", "transmitted Msg with ID:%d", Msg.m_ID);
-		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
-	}
-
 public:
 	void RenderBackground();
 

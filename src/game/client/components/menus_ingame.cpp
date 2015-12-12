@@ -505,13 +505,25 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
+		switch(e.m_FontAlign)
+		{
+		case 1: // center
+			Rect.x += (Rect.w - TextRender()->TextWidth(0, e.m_FontSize, e.m_Text, -1))/2;
+			break;
+		case 2: // right
+			Rect.x += Rect.w - TextRender()->TextWidth(0, e.m_FontSize, e.m_Text, -1);
+			break;
+		default: // anything but 1 and 2 will result in left-aligned
+			break;
+		}
+
 		TextRender()->TextColor(
 				e.m_Color[0]/100.0f,
 				e.m_Color[1]/100.0f,
 				e.m_Color[2]/100.0f,
 				e.m_Color[3]/100.0f);
 
-		// i'd prefer to use the second one, but it makes the game hung O_O
+		// i'd prefer to use the second one, but it makes the game hung ô.ô
 		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth);
 		/*UI()->DoLabel(&Rect,
 				e.m_Text,
@@ -538,10 +550,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 		int ButtonID=0; // this causes fading to fail, but whatever... we cannot use &e!
 		if(DoButton_Menu(&ButtonID, e.m_Text, e.m_Checked, &Rect))
-		{
-			//dbg_msg("NETGUI", "sending ButtonPressed with ID:%d", e.m_ID);
-			NetGui_ButtonMenu_Pressed(e.m_ID);
-		}
+			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
 	}
 
 }

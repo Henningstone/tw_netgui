@@ -4,20 +4,22 @@
 #define GAME_SERVER_NETGUI_H
 
 #include <base/tl/array.h>
-#include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <engine/shared/protocol.h>
-#include <generated/protocol.h>
 
 #include "player.h"
-
 
 class CNetGui
 {
 	class CGameContext *m_pGameServer;
 
+	// methods for managing sets of GUIs
+	void CreateGui_Example1(int ClientID);
+	void RemoveGui_Example1(int ClientID);
+
+
 public:
-	CNetGui(CGameContext *pGameServer) { m_pGameServer = pGameServer; }
+	CNetGui(CGameContext *pGameServer) : m_pGameServer(pGameServer){}
 	void RemoveElement(int ClientID, int Type, int NetGuiElemID);
 	void UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, int RoundingX10);
 	void Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dimensions, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth);

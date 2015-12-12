@@ -1,17 +1,33 @@
 // Copyright (c) 2015 Henritees
 
 #include <game/server/gamecontext.h>
-#include <game/server/gamecontroller.h>
 
 #include "netgui.h"
 
+
+// ----------------------------- [start of GUI managing methods] -----------------------------
+void CNetGui::CreateGui_Example1(int ClientID)
+{
+	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
+	Label(ClientID, 0, ">)^_^)> Welcome to this NetGUI server! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
+	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 500);
+	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 500);
+	ButtonMenu(ClientID, 0, "Close", 0, vec4(50-10, 50+10, 50-5, 50+5));
+}
+void CNetGui::RemoveGui_Example1(int ClientID)
+{
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 1);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
+}
+// ------------------------------ [end of GUI managing methods] -----------------------------
+
 void CNetGui::OnClientEnter(int ClientID)
 {
-	// send NetGui
-	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
-	Label(ClientID, 0, ">)^_^)> Welcome to Henritee's NetGUI Testserver! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
-	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 500);
-	ButtonMenu(ClientID, 0, "Close", 0, vec4(50-10, 50+10, 50-5, 50+5));
+	// send an example GUI to every entering the client
+	CreateGui_Example1(ClientID);
 }
 
 void CNetGui::OnClientDrop(int ClientID)
@@ -28,7 +44,6 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 	if (MsgID == NETMSGTYPE_CL_NETGUI_BUTTONMENU_PRESSED)
 	{
 		CNetMsg_Cl_NetGui_ButtonMenu_Pressed *pMsg = (CNetMsg_Cl_NetGui_ButtonMenu_Pressed *)pRawMsg;
-		//dbg_msg("NETGUI", "ClientID=%d sended 'BUTTONMENU_PRESSES' with m_ID:%d", pPlayer->GetCID(), pMsg->m_ID);
 		bool exists = false;
 		for(int i = 0; i < GetButtonMenu(ClientID).size(); i++)
 		{
@@ -37,22 +52,16 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 		}
 		if(exists == true)
 		{
-			// DO THE WANTED ACTIONS HERE
+			// handle button presses
 			switch(pMsg->m_ID)
 			{
 			case 0:
-				RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_UIRECT, 0);
-				RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_LABEL, 0);
-				RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_LABEL, 1);
-				RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
+				RemoveGui_Example1(ClientID);
 				ButtonMenu(ClientID, 1, "Open", 0, vec4(50-10, 50+10, 50-5, 50+5));
 				break;
 			case 1:
-				UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
-				Label(ClientID, 0, ">)^_^)> Welcome to Henritee's NetGUI Testserver! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
-				Label(ClientID, 1, "(: Congraz for using it! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 50, 0, 80), 20, 1, 500);
+				CreateGui_Example1(ClientID);
 				RemoveElement(pPlayer->GetCID(), NETMSGTYPE_SV_NETGUI_BUTTONMENU, 1);
-				ButtonMenu(ClientID, 0, "Close", 0, vec4(50-10, 50+10, 50-5, 50+5));
 				break;
 			}
 		}
