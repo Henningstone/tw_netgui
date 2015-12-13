@@ -46,6 +46,13 @@ private:
 	array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_EditBox> m_EditBox[MAX_CLIENTS];
 
+	template<class T>
+	void SendNetGui(int ClientID, T Msg);
+
+	template<class T>
+	void RequestData(int ClientID, int NetGuiElemID);
+
+
 };
 
 #endif

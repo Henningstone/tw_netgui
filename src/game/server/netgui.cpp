@@ -125,9 +125,7 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
 				break;
 			case 7:
-				CNetMsg_Sv_NetGui_EditBox_RequestContent Msg;
-				Msg.m_ID = 0;
-				GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+				RequestData<CNetMsg_Sv_NetGui_EditBox_RequestContent>(ClientID, 0);
 			}
 		}
 	}
@@ -185,7 +183,7 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 		break;
 	}
 
-	GameServer()->SendNetGui(ClientID, Msg);
+	SendNetGui(ClientID, Msg);
 }
 
 void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, int RoundingX10)
@@ -205,7 +203,7 @@ void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color
 
 	m_UIRect[ClientID].add(Msg);
 
-	GameServer()->SendNetGui(ClientID, Msg);
+	SendNetGui(ClientID, Msg);
 }
 
 void CNetGui::Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dimensions, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth)
@@ -227,7 +225,7 @@ void CNetGui::Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dime
 
 	m_Label[ClientID].add(Msg);
 
-	GameServer()->SendNetGui(ClientID, Msg);
+	SendNetGui(ClientID, Msg);
 }
 
 void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int Checked, vec4 Dimensions)
@@ -243,7 +241,7 @@ void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int 
 
 	m_ButtonMenu[ClientID].add(Msg);
 
-	GameServer()->SendNetGui(ClientID, Msg);
+	SendNetGui(ClientID, Msg);
 }
 
 void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password)
@@ -261,5 +259,31 @@ void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const cha
 
 	m_EditBox[ClientID].add(Msg);
 
-	GameServer()->SendNetGui(ClientID, Msg);
+	SendNetGui(ClientID, Msg);
+}
+
+
+template<class T>
+void CNetGui::SendNetGui(int ClientID, T Msg)
+{
+	if(ClientID < 0)
+	{
+		for(int i = 0; i < MAX_CLIENTS; ++i)
+		{
+			if(!GameServer()->m_apPlayers[i] /*|| !Server()->ClientIngame(i)*/)
+				continue;
+
+			GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
+		}
+	}
+	else
+		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+}
+
+template<class T>
+void CNetGui::RequestData(int ClientID, int NetGuiElemID)
+{
+		T Msg;
+		Msg.m_ID = NetGuiElemID;
+		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }

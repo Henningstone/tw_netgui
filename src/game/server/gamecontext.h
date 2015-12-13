@@ -151,23 +151,6 @@ public:
 	void SendGameMsg(int GameMsgID, int ParaI1, int ClientID);
 	void SendGameMsg(int GameMsgID, int ParaI1, int ParaI2, int ParaI3, int ClientID);
 
-	template<class T>
-	int SendNetGui(int ClientID, T Msg)
-	{
-		if(ClientID < 0)
-		{
-			for(int i = 0; i < MAX_CLIENTS; ++i)
-			{
-				if(!m_apPlayers[i] /*|| !Server()->ClientIngame(i)*/)
-					continue;
-
-				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
-			}
-		}
-		else
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-	}
-
 	//
 	void CheckPureTuning();
 	void SendTuningParams(int ClientID);
