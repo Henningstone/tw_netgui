@@ -548,8 +548,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		int ButtonID=0; // this causes fading to fail, but whatever... we cannot use &e!
-		if(DoButton_Menu(&ButtonID, e.m_Text, e.m_Checked, &Rect))
+		static int s_ButtonID[1024]; // nobody will create so much buttons :p
+		if(DoButton_Menu(&s_ButtonID[i], e.m_Text, e.m_Checked, &Rect))
 			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
 	}
 

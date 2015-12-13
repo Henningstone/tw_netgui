@@ -5,17 +5,23 @@
 
 #include <base/tl/array.h>
 #include <game/server/gamecontroller.h>
+#include <game/server/gamecontext.h>
 #include <engine/shared/protocol.h>
+#include <engine/server.h>
+#include <generated/protocol.h>
 
 #include "player.h"
 
+#define GUISET(name) void CreateGui_##name(int ClientID); void RemoveGui_##name(int ClientID);
+
 class CNetGui
 {
-	class CGameContext *m_pGameServer;
+	CGameContext *m_pGameServer;
 
 	// methods for managing sets of GUIs
-	void CreateGui_Example1(int ClientID);
-	void RemoveGui_Example1(int ClientID);
+	GUISET(ExampleClosed)
+	GUISET(Example1)
+	GUISET(Example2)
 
 
 public:

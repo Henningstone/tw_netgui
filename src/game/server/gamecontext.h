@@ -161,7 +161,6 @@ public:
 				if(!m_apPlayers[i] /*|| !Server()->ClientIngame(i)*/)
 					continue;
 
-				dbg_msg("NETGUI", "SENDING NETGUI TO ID: %i", i);
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
 			}
 		}
