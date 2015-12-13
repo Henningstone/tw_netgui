@@ -487,7 +487,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e.m_Color[2]/100.0f,
 				e.m_Color[3]/100.0f);
 		RenderTools()->DrawUIRect(&Rect, Color, e.m_Corner, e.m_RoundingX10/10.0f);
-
+		//DoEditBox()
 	}
 
 	// Label
@@ -553,7 +553,39 @@ void CMenus::RenderNetGui(CUIRect MainView)
 			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
 	}
 
+	// EditBox
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiEditBox.size(); i++)
+	{
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_EditBox e = m_pClient->m_pNetGui->m_NetGuiEditBox[i];
+
+		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static char aText[1024][1024];
+		static int s_EditBoxID[1024];
+		static float s_Offset[1024];
+		static bool called[1024];
+		if(!called[i])
+		{
+			//str_copy(aText[i], e.m_Text, sizeof(aText[i]));
+			s_EditBoxID[i] = 0;
+			s_Offset[i] = 0.0f;
+			called[i] = true;
+		}
+		// the first one doesn't work o_O But the second one is more awesome anyway!
+		//DoEditBox((void*)&s_EditBoxID[i], &Rect, aText[i], (unsigned int)str_length(aText[i]), (float)e.m_FontSize/10.0f, &s_Offset[i], e.m_Password ? true : false, e.m_Corner);
+		DoEditBoxOption((void *)&s_EditBoxID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, (float)e.m_SplitValue, &s_Offset[i], e.m_Password ? true : false);
+		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
+	}
 }
+
 
 void CMenus::HandleCallvote(int Page, bool Force)
 {

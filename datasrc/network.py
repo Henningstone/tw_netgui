@@ -367,6 +367,27 @@ Messages = [
 		NetIntAny("m_ID"),
 	]),
 
+	NetMessage("Sv_NetGui_EditBox", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Title"),
+		NetIntAny("m_SplitValue"),
+		NetIntAny("m_MaxTextWidth"),
+		NetIntRange("m_Password", 0, 1),
+		##NetIntRange("m_Corner", 0, 255),
+	]),
+	NetMessage("Sv_NetGui_EditBox_RequestContent", [
+		NetIntAny("m_ID"),
+	]),
+	NetMessage("Cl_NetGui_EditBox_Content", [
+		NetIntAny("m_ID"),
+		NetString("m_Text"),
+	]),
+		
+
+
+
+
 
 
 	## Demo messages

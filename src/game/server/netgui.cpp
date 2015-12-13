@@ -34,19 +34,20 @@ void CNetGui::RemoveGui_Example1(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 2);
-
 }
 
 void CNetGui::CreateGui_Example2(int ClientID)
 {
 	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 50);
 	Label(ClientID, 0, ">)^_^)> Welcome to Page 2! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
-	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(50, 0, 80, 80), 20, 1, 500);
+	Label(ClientID, 1, "(: Congraz for clicking! <(^_^(<", vec4(0, 100, 10, 20), vec4(50, 0, 80, 80), 20, 1, 500);
 	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 500);
 	ButtonMenu(ClientID, 3, "< Page 1", 1, vec4(55-10+15, 55+10+15, 50-5, 50+5));
 	ButtonMenu(ClientID, 4, "Kill me :P", 0, vec4(5, 15, 20+1, 25+1));
 	ButtonMenu(ClientID, 5, "Troll me :P", 0, vec4(5, 15, 25+3, 30+3));
 	ButtonMenu(ClientID, 6, "F!ck me :P", 0, vec4(5, 15, 30+5, 35+5));
+	ButtonMenu(ClientID, 7, "Print me :P", 0, vec4(5, 15, 35+7, 40+7));
+	EditBox(ClientID, 0, vec4(5, 45, 40+9, 45+9), "Your name", 100, 16, false);
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -58,7 +59,10 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 4);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 5);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 6);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
 }
+
 // ------------------------------ [end of GUI managing methods] -----------------------------
 
 void CNetGui::OnClientEnter(int ClientID)
@@ -72,6 +76,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_UIRect[ClientID].clear();
 	m_Label[ClientID].clear();
 	m_ButtonMenu[ClientID].clear();
+	m_EditBox[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -87,7 +92,7 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			if(GetButtonMenu(ClientID)[i].m_ID == pMsg->m_ID)
 				exists = true;
 		}
-		if(exists == true)
+		if(exists)
 		{
 			// handle button presses
 			switch(pMsg->m_ID)
@@ -119,8 +124,25 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			case 6: // f!ck
 				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
 				break;
+			case 7:
+				CNetMsg_Sv_NetGui_EditBox_RequestContent Msg;
+				Msg.m_ID = 0;
+				GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 			}
 		}
+	}
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_EDITBOX_CONTENT)
+	{
+		CNetMsg_Cl_NetGui_EditBox_Content *pMsg = (CNetMsg_Cl_NetGui_EditBox_Content *)pRawMsg;
+		switch(pMsg->m_ID)
+		{
+		case 0:
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' entered '%s' into the awesome EditBox!", GameServer()->Server()->ClientName(ClientID), pMsg->m_Text);
+			GameServer()->SendChatTarget(-1, aBuf);
+			GameServer()->Server()->SetClientName(ClientID, pMsg->m_Text);
+		}
+
 	}
 }
 
@@ -151,6 +173,13 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 		{
 			if(m_ButtonMenu[ClientID][i].m_ID == NetGuiElemID)
 				m_ButtonMenu[ClientID].remove_index(i);
+		}
+		break;
+	case NETMSGTYPE_SV_NETGUI_EDITBOX:
+		for(int i = 0; i < m_EditBox[ClientID].size(); i++)
+		{
+			if(m_EditBox[ClientID][i].m_ID == NetGuiElemID)
+				m_EditBox[ClientID].remove_index(i);
 		}
 		break;
 	}
@@ -212,6 +241,24 @@ void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int 
 	Msg.m_Dimension[3] = Dimensions.b;
 
 	m_ButtonMenu[ClientID].add(Msg);
+
+	GameServer()->SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password)
+{
+	CNetMsg_Sv_NetGui_EditBox Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+	Msg.m_Title = pTitle;
+	Msg.m_SplitValue = SplitValue;
+	Msg.m_MaxTextWidth = MaxTextWidth;
+	Msg.m_Password = Password ? 1 : 0;
+
+	m_EditBox[ClientID].add(Msg);
 
 	GameServer()->SendNetGui(ClientID, Msg);
 }
