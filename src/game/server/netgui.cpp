@@ -141,6 +141,7 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			str_format(aBuf, sizeof(aBuf), "'%s' entered '%s' into the awesome EditBox!", GameServer()->Server()->ClientName(ClientID), pMsg->m_Text);
 			GameServer()->SendChatTarget(-1, aBuf);
 			GameServer()->Server()->SetClientName(ClientID, pMsg->m_Text);
+			break;
 		}
 
 	}
