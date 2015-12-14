@@ -8,7 +8,6 @@
 #include <game/server/gamecontext.h>
 #include <engine/shared/protocol.h>
 #include <engine/server.h>
-#include <generated/protocol.h>
 
 #include "player.h"
 
