@@ -353,7 +353,7 @@ Messages = [
 		NetArray(NetIntRange("m_Color", 0, 100), 4),
 		NetIntAny("m_FontSize"),
 		NetIntRange("m_FontAlign", 0, 2),
-		NetIntAny("m_MaxTextWidth"),		
+		NetIntRange("m_MaxTextWidth", 0, 100),		
 	]),
 
 	NetMessage("Sv_NetGui_ButtonMenu", [

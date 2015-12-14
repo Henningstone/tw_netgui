@@ -20,11 +20,11 @@ void CNetGui::RemoveGui_ExampleClosed(int ClientID)
 void CNetGui::CreateGui_Example1(int ClientID)
 {
 	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
-	Label(ClientID, 0, ">)^_^)> Welcome to this NetGUI server! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
-	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 500);
-	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 500);
+	Label(ClientID, 0, ">)^_^)> Welcome to this NetGUI server! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 100-0);
+	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 100-0);
+	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 100-1);
 	ButtonMenu(ClientID, 0, "Close", 0, vec4(45-10, 45+10, 50-5, 50+5));
-	ButtonMenu(ClientID, 2, "Page 2 >", 0, vec4(55-10+15, 55+10+15, 50-5, 50+5));
+	ButtonMenu(ClientID, 2, "Page 2 →", 0, vec4(vec4(100-5-20, 100-5, 100-5-10, 100-5)));
 }
 void CNetGui::RemoveGui_Example1(int ClientID)
 {
@@ -38,29 +38,48 @@ void CNetGui::RemoveGui_Example1(int ClientID)
 
 void CNetGui::CreateGui_Example2(int ClientID)
 {
-	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 50);
-	Label(ClientID, 0, ">)^_^)> Welcome to Page 2! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 500);
-	Label(ClientID, 1, "(: Congraz for clicking! <(^_^(<", vec4(0, 100, 10, 20), vec4(50, 0, 80, 80), 20, 1, 500);
-	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 500);
-	ButtonMenu(ClientID, 3, "< Page 1", 1, vec4(55-10+15, 55+10+15, 50-5, 50+5));
-	ButtonMenu(ClientID, 4, "Kill me :P", 0, vec4(5, 15, 20+1, 25+1));
+	UIRect(ClientID, 1, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 50);
+	Label(ClientID, 0, ">)^_^)> Welcome to Page 2! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 100-0);
+	Label(ClientID, 1, "(: Congraz for clicking! <(^_^(<", vec4(0, 100, 10, 20), vec4(50, 0, 80, 80), 20, 1, 100-0);
+	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 100-1);
+	ButtonMenu(ClientID, 3, "← Page 1", 1, vec4(100-5-20, 100-5, 100-5-10, 100-5));
+
+	ButtonMenu(ClientID, 4, "Kill me", 0, vec4(5, 15, 20+1, 25+1));
+	Label(ClientID, 3, "<- This button will kill you", vec4(15+3, 100, 20+1, 25+1), vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
+
 	ButtonMenu(ClientID, 5, "Troll me :P", 0, vec4(5, 15, 25+3, 30+3));
+	Label(ClientID, 4, "<- This button will print some random shit into the chat ;)", vec4(15+3, 100, 25+3, 30+3), vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
+
 	ButtonMenu(ClientID, 6, "F!ck me :P", 0, vec4(5, 15, 30+5, 35+5));
+	Label(ClientID, 5, "<- Surprise motherf*ckr! ^(devil)^", vec4(15+3, 100, 30+5, 35+5), vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
+
 	ButtonMenu(ClientID, 7, "Print me :P", 0, vec4(5, 15, 35+7, 40+7));
-	EditBox(ClientID, 0, vec4(5, 45, 40+9, 45+9), "Your name", 100, 16, false);
+	Label(ClientID, 6, "<- Print your login data (from below ↓) into the chat... public! mehe!", vec4(15+3, 100, 35+7, 40+7), vec4(30, 100, 20, 80), 13, 0, 10);
+
+	UIRect(ClientID, 2, vec4(5, 50, 40+9, 60+15), vec4(0, 0, 40, 85), 15, 30);
+	Label(ClientID, 7, "Server Account Login (just as an example ^^)", vec4(5+2, 50-2, 40+9+1, 45+9+1), vec4(100,100,100,100), 10, 1, (50-2)-(5+2));
+	EditBox(ClientID, 0, vec4(5+3, 50-3, 45+11, 50+11), "Login name", 50, 16, false);
+	EditBox(ClientID, 1, vec4(5+3, 50-3, 50+13, 55+13), "Password", 50, 16, true);
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 1);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 2);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 3);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 4);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 5);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 6);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 7);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 3);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 4);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 5);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 6);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
 }
 
 // ------------------------------ [end of GUI managing methods] -----------------------------
@@ -118,30 +137,45 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				break;
 			case 5: // troll
 				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "%s is such an NetGUI abuser ey, dat gibbet nich! GRR!! CHATSPAM!!!", GameServer()->Server()->ClientName(ClientID));
-				GameServer()->SendChatTarget(-1, aBuf);
+				str_format(aBuf, sizeof(aBuf), "Gob Gob Gob Gob who want some coooookies....? ^-^ Ask %s!", GameServer()->Server()->ClientName(ClientID));
+				GameServer()->SendChat(ClientID, 0, aBuf);
 				break;
 			case 6: // f!ck
 				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
 				break;
 			case 7:
 				RequestData<CNetMsg_Sv_NetGui_EditBox_RequestContent>(ClientID, 0);
+				RequestData<CNetMsg_Sv_NetGui_EditBox_RequestContent>(ClientID, 1);
 			}
 		}
 	}
 	else if(MsgID == NETMSGTYPE_CL_NETGUI_EDITBOX_CONTENT)
 	{
 		CNetMsg_Cl_NetGui_EditBox_Content *pMsg = (CNetMsg_Cl_NetGui_EditBox_Content *)pRawMsg;
+
+		// a (maybe shitty) example of how multiple EditBoxes can be read at once (though not simultaneously...)
+		static int GotIDs;
+		static char aLoginName[32];
+		static char aLoginPass[32];
 		switch(pMsg->m_ID)
 		{
 		case 0:
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "'%s' entered '%s' into the awesome EditBox!", GameServer()->Server()->ClientName(ClientID), pMsg->m_Text);
-			GameServer()->SendChatTarget(-1, aBuf);
-			GameServer()->Server()->SetClientName(ClientID, pMsg->m_Text);
+			GotIDs |= 1;
+			str_copy(aLoginName, pMsg->m_Text, sizeof(aLoginName));
+			break;
+		case 1:
+			GotIDs |= 2;
+			str_copy(aLoginPass, pMsg->m_Text, sizeof(aLoginPass));
 			break;
 		}
 
+		if(GotIDs == (1 | 2))
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' would have logged in with name='%s' and pass='%s'", GameServer()->Server()->ClientName(ClientID), aLoginName, aLoginPass);
+			GameServer()->SendChatTarget(-1, aBuf);
+			GotIDs = 0;
+		}
 	}
 }
 

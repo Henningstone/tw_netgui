@@ -524,7 +524,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e.m_Color[3]/100.0f);
 
 		// i'd prefer to use the second one, but it makes the game hung ô.ô
-		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth);
+		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth*(int)MainView.w);
 		/*UI()->DoLabel(&Rect,
 				e.m_Text,
 				e.m_FontSize,
@@ -581,7 +581,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		}
 		// the first one doesn't work o_O But the second one is more awesome anyway!
 		//DoEditBox((void*)&s_EditBoxID[i], &Rect, aText[i], (unsigned int)str_length(aText[i]), (float)e.m_FontSize/10.0f, &s_Offset[i], e.m_Password ? true : false, e.m_Corner);
-		DoEditBoxOption((void *)&s_EditBoxID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, (float)e.m_SplitValue, &s_Offset[i], e.m_Password ? true : false);
+		DoEditBoxOption((void *)&s_EditBoxID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
 	}
 }
