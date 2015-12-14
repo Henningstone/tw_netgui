@@ -376,12 +376,24 @@ Messages = [
 		NetIntRange("m_Password", 0, 1),
 		##NetIntRange("m_Corner", 0, 255),
 	]),
-	NetMessage("Sv_NetGui_EditBox_RequestContent", [
+	NetMessage("Sv_NetGui_RequestContent", [
 		NetIntAny("m_ID"),
+		NetIntAny("m_Type"),
 	]),
 	NetMessage("Cl_NetGui_EditBox_Content", [
 		NetIntAny("m_ID"),
 		NetString("m_Text"),
+	]),
+
+	NetMessage("Sv_NetGui_CheckBox", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Text"),
+		NetIntRange("m_Checked", 0, 1),
+	]),
+	NetMessage("Cl_NetGui_CheckBox_State", [
+		NetIntAny("m_ID"),
+		NetIntRange("m_Checked", 0, 1),
 	]),
 		
 

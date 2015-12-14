@@ -60,6 +60,9 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	Label(ClientID, 7, "Server Account Login (just as an example ^^)", vec4(5+2, 50-2, 40+9+1, 45+9+1), vec4(100,100,100,100), 10, 1, (50-2)-(5+2));
 	EditBox(ClientID, 0, vec4(5+3, 50-3, 45+11, 50+11), "Login name", 50, 16, false);
 	EditBox(ClientID, 1, vec4(5+3, 50-3, 50+13, 55+13), "Password", 50, 16, true);
+
+	CheckBox(ClientID, 0, vec4(5, 50, 60+17, 65+17), "Whatever… but hey, I'm a checkbox so YOOO!", 0);
+	ButtonMenu(ClientID, 8, "»", 0, vec4(50+3, 55+3, 60+17, 65+17));
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -78,8 +81,10 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 5);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 6);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 8);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
 }
 
 // ------------------------------ [end of GUI managing methods] -----------------------------
@@ -96,6 +101,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_Label[ClientID].clear();
 	m_ButtonMenu[ClientID].clear();
 	m_EditBox[ClientID].clear();
+	m_CheckBox[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -144,8 +150,11 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
 				break;
 			case 7:
-				RequestData<CNetMsg_Sv_NetGui_EditBox_RequestContent>(ClientID, 0);
-				RequestData<CNetMsg_Sv_NetGui_EditBox_RequestContent>(ClientID, 1);
+				RequestData(ClientID, 0, NETMSGTYPE_SV_NETGUI_EDITBOX);
+				RequestData(ClientID, 1, NETMSGTYPE_SV_NETGUI_EDITBOX);
+				break;
+			case 8:
+				RequestData(ClientID, 0, NETMSGTYPE_SV_NETGUI_CHECKBOX);
 			}
 		}
 	}
@@ -176,6 +185,13 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			GameServer()->SendChatTarget(-1, aBuf);
 			GotIDs = 0;
 		}
+	}
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_CHECKBOX_STATE)
+	{
+		CNetMsg_Cl_NetGui_CheckBox_State *pMsg = (CNetMsg_Cl_NetGui_CheckBox_State *)pRawMsg;
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "'%s' made checkbox being %s! Well done :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Checked ? "checked" : "unchecked");
+		GameServer()->SendChatTarget(-1, aBuf);
 	}
 }
 
@@ -213,6 +229,13 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 		{
 			if(m_EditBox[ClientID][i].m_ID == NetGuiElemID)
 				m_EditBox[ClientID].remove_index(i);
+		}
+		break;
+	case NETMSGTYPE_SV_NETGUI_CHECKBOX:
+		for(int i = 0; i < m_CheckBox[ClientID].size(); i++)
+		{
+			if(m_CheckBox[ClientID][i].m_ID == NetGuiElemID)
+				m_CheckBox[ClientID].remove_index(i);
 		}
 		break;
 	}
@@ -296,6 +319,21 @@ void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const cha
 	SendNetGui(ClientID, Msg);
 }
 
+void CNetGui::CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int Checked)
+{
+	CNetMsg_Sv_NetGui_CheckBox Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Text = pText;
+	Msg.m_Checked = Checked;
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+
+	m_CheckBox[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
 
 template<class T>
 void CNetGui::SendNetGui(int ClientID, T Msg)
@@ -314,10 +352,10 @@ void CNetGui::SendNetGui(int ClientID, T Msg)
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
-template<class T>
-void CNetGui::RequestData(int ClientID, int NetGuiElemID)
+void CNetGui::RequestData(int ClientID, int NetGuiElemID, int Type)
 {
-		T Msg;
+		CNetMsg_Sv_NetGui_RequestContent Msg;
 		Msg.m_ID = NetGuiElemID;
+		Msg.m_Type = Type;
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }

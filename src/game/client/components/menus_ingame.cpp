@@ -469,6 +469,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// UIRect
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiUIRect.size(); i++)
 	{
+		if(i >= 1024) break;
+
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_UIRect e = m_pClient->m_pNetGui->m_NetGuiUIRect[i];
 
@@ -493,6 +495,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// Label
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiLabel.size(); i++)
 	{
+		if(i >= 1024) break;
+
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_Label e = m_pClient->m_pNetGui->m_NetGuiLabel[i];
 
@@ -536,6 +540,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// ButtonMenu
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiButtonMenu.size(); i++)
 	{
+		if(i >= 1024) break;
+
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_ButtonMenu e = m_pClient->m_pNetGui->m_NetGuiButtonMenu[i];
 
@@ -556,6 +562,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// EditBox
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiEditBox.size(); i++)
 	{
+		if(i >= 1024) break;
+
 		CUIRect Rect;
 		CNetMsg_Sv_NetGui_EditBox e = m_pClient->m_pNetGui->m_NetGuiEditBox[i];
 
@@ -583,6 +591,36 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		//DoEditBox((void*)&s_EditBoxID[i], &Rect, aText[i], (unsigned int)str_length(aText[i]), (float)e.m_FontSize/10.0f, &s_Offset[i], e.m_Password ? true : false, e.m_Corner);
 		DoEditBoxOption((void *)&s_EditBoxID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
+	}
+
+	// CheckBox
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiCheckBox.size(); i++)
+	{
+		if(i >= 1024) break;
+
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_CheckBox e = m_pClient->m_pNetGui->m_NetGuiCheckBox[i];
+
+		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static int s_CheckBoxID[1024];
+		static bool called[1024];
+		if(!called[i])
+		{
+			s_CheckBoxID[i] = 0;
+			m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i] = e.m_Checked ? true : false;
+			called[i] = true;
+		}
+
+		if(DoButton_CheckBox(&s_CheckBoxID[i], e.m_Text, m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i], &Rect))
+			m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i] ^= 1;
 	}
 }
 

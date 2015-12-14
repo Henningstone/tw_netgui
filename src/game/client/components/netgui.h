@@ -12,12 +12,13 @@ class CNetGui : public CComponent
 	virtual void OnMessage(int MsgId, void *pRawMsg);
 
 public:
-
 	array<CNetMsg_Sv_NetGui_UIRect> m_NetGuiUIRect;
 	array<CNetMsg_Sv_NetGui_Label> m_NetGuiLabel;
 	array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
 	array<CNetMsg_Sv_NetGui_EditBox> m_NetGuiEditBox;
+	array<CNetMsg_Sv_NetGui_CheckBox> m_NetGuiCheckBox;
 	char m_aNetGuiEditBoxContent[1024][1024];
+	int m_aNetGuiCheckBoxState[1024];
 
 	// maxsort to get stuff into correct render order.
 	template<class T>
