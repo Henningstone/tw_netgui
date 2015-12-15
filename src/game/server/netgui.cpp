@@ -24,7 +24,7 @@ void CNetGui::CreateGui_Example1(int ClientID)
 	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 100-0);
 	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 100-1);
 	ButtonMenu(ClientID, 0, "Close", 0, vec4(45-10, 45+10, 50-5, 50+5));
-	ButtonMenu(ClientID, 2, "Page 2 →", 0, vec4(vec4(100-5-20, 100-5, 100-5-10, 100-5)));
+	ButtonMenu(ClientID, 2, "Page 2 →", 0, vec4(100-5-20, 100-5, 100-5-10, 100-5));
 }
 void CNetGui::RemoveGui_Example1(int ClientID)
 {
@@ -63,6 +63,10 @@ void CNetGui::CreateGui_Example2(int ClientID)
 
 	CheckBox(ClientID, 0, vec4(5, 50, 60+17, 65+17), "Whatever… but hey, I'm a checkbox so YOOO!", 0);
 	ButtonMenu(ClientID, 8, "»", 0, vec4(50+3, 55+3, 60+17, 65+17));
+
+	CheckBoxNumber(ClientID, 0, vec4(5, 50, 65+19, 70+19), "Amazing Number-Checkbox ;)", 0, 16, 2);
+	ButtonMenu(ClientID, 9, "»", 0, vec4(50+3, 55+3, 65+19, 70+19));
+
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -82,9 +86,12 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 6);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 8);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 9);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
+
 }
 
 // ------------------------------ [end of GUI managing methods] -----------------------------
@@ -102,6 +109,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_ButtonMenu[ClientID].clear();
 	m_EditBox[ClientID].clear();
 	m_CheckBox[ClientID].clear();
+	m_CheckBoxNumber[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -112,14 +120,14 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 	{
 		CNetMsg_Cl_NetGui_ButtonMenu_Pressed *pMsg = (CNetMsg_Cl_NetGui_ButtonMenu_Pressed *)pRawMsg;
 		bool exists = false;
-		for(int i = 0; i < GetButtonMenu(ClientID).size(); i++)
+		for(int i = 0; i < m_ButtonMenu[ClientID].size(); i++)
 		{
-			if(GetButtonMenu(ClientID)[i].m_ID == pMsg->m_ID)
+			if(m_ButtonMenu[ClientID][i].m_ID == pMsg->m_ID)
 				exists = true;
 		}
 		if(exists)
 		{
-			// handle button presses
+			// TODO: handle button presses
 			switch(pMsg->m_ID)
 			{
 			case 0: // close
@@ -150,48 +158,72 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
 				break;
 			case 7:
-				RequestData(ClientID, 0, NETMSGTYPE_SV_NETGUI_EDITBOX);
-				RequestData(ClientID, 1, NETMSGTYPE_SV_NETGUI_EDITBOX);
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
 				break;
 			case 8:
-				RequestData(ClientID, 0, NETMSGTYPE_SV_NETGUI_CHECKBOX);
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
+				break;
+			case 9:
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
+				break;
 			}
 		}
 	}
-	else if(MsgID == NETMSGTYPE_CL_NETGUI_EDITBOX_CONTENT)
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSESTRING)
 	{
-		CNetMsg_Cl_NetGui_EditBox_Content *pMsg = (CNetMsg_Cl_NetGui_EditBox_Content *)pRawMsg;
+		CNetMsg_Cl_NetGui_ResponseString *pMsg = (CNetMsg_Cl_NetGui_ResponseString *)pRawMsg;
 
-		// a (maybe shitty) example of how multiple EditBoxes can be read at once (though not simultaneously...)
-		static int GotIDs;
-		static char aLoginName[32];
-		static char aLoginPass[32];
-		switch(pMsg->m_ID)
+		switch(pMsg->m_Type)
 		{
-		case 0:
-			GotIDs |= 1;
-			str_copy(aLoginName, pMsg->m_Text, sizeof(aLoginName));
-			break;
-		case 1:
-			GotIDs |= 2;
-			str_copy(aLoginPass, pMsg->m_Text, sizeof(aLoginPass));
-			break;
-		}
+		case NETMSGTYPE_SV_NETGUI_EDITBOX:
+			// a (maybe shitty) example of how multiple EditBoxes can be read at once (though not simultaneously...)
+			static int GotIDs;
+			static char aLoginName[32];
+			static char aLoginPass[32];
+			switch(pMsg->m_ID)
+			{
+			case 0:
+				GotIDs |= 1;
+				str_copy(aLoginName, pMsg->m_Text, sizeof(aLoginName));
+				break;
+			case 1:
+				GotIDs |= 2;
+				str_copy(aLoginPass, pMsg->m_Text, sizeof(aLoginPass));
+				break;
+			}
 
-		if(GotIDs == (1 | 2))
-		{
-			char aBuf[128];
-			str_format(aBuf, sizeof(aBuf), "'%s' would have logged in with name='%s' and pass='%s'", GameServer()->Server()->ClientName(ClientID), aLoginName, aLoginPass);
-			GameServer()->SendChatTarget(-1, aBuf);
-			GotIDs = 0;
+			if(GotIDs == (1 | 2))
+			{
+				char aBuf[128];
+				str_format(aBuf, sizeof(aBuf), "'%s' would have logged in with name='%s' and pass='%s'", GameServer()->Server()->ClientName(ClientID), aLoginName, aLoginPass);
+				GameServer()->SendChatTarget(-1, aBuf);
+				GotIDs = 0;
+			}
+			break;
 		}
 	}
-	else if(MsgID == NETMSGTYPE_CL_NETGUI_CHECKBOX_STATE)
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSEINT)
 	{
-		CNetMsg_Cl_NetGui_CheckBox_State *pMsg = (CNetMsg_Cl_NetGui_CheckBox_State *)pRawMsg;
-		char aBuf[128];
-		str_format(aBuf, sizeof(aBuf), "'%s' made checkbox being %s! Well done :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Checked ? "checked" : "unchecked");
-		GameServer()->SendChatTarget(-1, aBuf);
+		CNetMsg_Cl_NetGui_ResponseInt *pMsg = (CNetMsg_Cl_NetGui_ResponseInt *)pRawMsg;
+
+		switch(pMsg->m_Type)
+		{
+		case NETMSGTYPE_SV_NETGUI_CHECKBOX:
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' made checkbox being %s! Well done :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value ? "checked" : "unchecked");
+			GameServer()->SendChatTarget(-1, aBuf);
+			break;
+		}
+		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' set the number-checkbox to %i! Nice :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value);
+			GameServer()->SendChatTarget(-1, aBuf);
+			break;
+		}
+		}
 	}
 }
 
@@ -236,6 +268,13 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 		{
 			if(m_CheckBox[ClientID][i].m_ID == NetGuiElemID)
 				m_CheckBox[ClientID].remove_index(i);
+		}
+		break;
+	case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
+		for(int i = 0; i < m_CheckBoxNumber[ClientID].size(); i++)
+		{
+			if(m_CheckBoxNumber[ClientID][i].m_ID == NetGuiElemID)
+				m_CheckBoxNumber[ClientID].remove_index(i);
 		}
 		break;
 	}
@@ -335,6 +374,25 @@ void CNetGui::CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const ch
 	SendNetGui(ClientID, Msg);
 }
 
+void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue)
+{
+	CNetMsg_Sv_NetGui_CheckBoxNumber Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Text = pText;
+	Msg.m_Value = MinValue;
+	Msg.m_MinValue = MinValue;
+	Msg.m_MaxValue = MaxValue;
+	Msg.m_StepValue = StepValue;
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+
+	m_CheckBoxNumber[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
+
 template<class T>
 void CNetGui::SendNetGui(int ClientID, T Msg)
 {
@@ -352,9 +410,9 @@ void CNetGui::SendNetGui(int ClientID, T Msg)
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
-void CNetGui::RequestData(int ClientID, int NetGuiElemID, int Type)
+void CNetGui::RequestData(int ClientID, int Type, int NetGuiElemID)
 {
-		CNetMsg_Sv_NetGui_RequestContent Msg;
+		CNetMsg_Sv_NetGui_RequestData Msg;
 		Msg.m_ID = NetGuiElemID;
 		Msg.m_Type = Type;
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);

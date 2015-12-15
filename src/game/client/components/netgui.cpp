@@ -56,11 +56,18 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 					m_NetGuiCheckBox.remove_index(i);
 			}
 			break;
+		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
+			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
+			{
+				if(m_NetGuiCheckBoxNumber[i].m_ID == pMsg->m_ID)
+					m_NetGuiCheckBoxNumber.remove_index(i);
+			}
+			break;
 		}
 	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTCONTENT)
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTDATA)
 	{
-		CNetMsg_Sv_NetGui_RequestContent *pMsg = (CNetMsg_Sv_NetGui_RequestContent *)pRawMsg;
+		CNetMsg_Sv_NetGui_RequestData *pMsg = (CNetMsg_Sv_NetGui_RequestData *)pRawMsg;
 		switch(pMsg->m_Type)
 		{
 		case NETMSGTYPE_SV_NETGUI_EDITBOX:
@@ -73,16 +80,16 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			}
 			if(index >= 0)
 			{
-				CNetMsg_Cl_NetGui_EditBox_Content Reply;
+				CNetMsg_Cl_NetGui_ResponseString Reply;
 				Reply.m_ID = pMsg->m_ID;
+				Reply.m_Type = pMsg->m_Type;
 				Reply.m_Text = m_aNetGuiEditBoxContent[index];
 				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 			}
-			else
-				dbg_msg("NetGUI", "dropped wired EditBox_ContentRequest with index=%d", index);
 		}
 		break;
 		case NETMSGTYPE_SV_NETGUI_CHECKBOX:
+		{
 			int index = -1;
 			for(int i = 0; i < m_NetGuiCheckBox.size(); i++)
 			{
@@ -91,16 +98,33 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			}
 			if(index >= 0)
 			{
-				CNetMsg_Cl_NetGui_CheckBox_State Reply;
+				CNetMsg_Cl_NetGui_ResponseInt Reply;
 				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Checked = m_aNetGuiCheckBoxState[index];
+				Reply.m_Type = pMsg->m_Type;
+				Reply.m_Value = m_NetGuiCheckBox[index].m_Checked;
 				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 			}
-			else
-				dbg_msg("NetGUI", "dropped wired CheckBox_ContentRequest with index=%d", index);
 			break;
 		}
-
+		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
+		{
+			int index = -1;
+			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
+			{
+				if(m_NetGuiCheckBoxNumber[i].m_ID == pMsg->m_ID)
+					index = i;
+			}
+			if(index >= 0)
+			{
+				CNetMsg_Cl_NetGui_ResponseInt Reply;
+				Reply.m_ID = pMsg->m_ID;
+				Reply.m_Type = pMsg->m_Type;
+				Reply.m_Value = m_NetGuiCheckBoxNumber[index].m_Value;
+				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
+			}
+			break;
+		}
+		}
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_UIRECT)
 	{
@@ -265,5 +289,39 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		// save the element and resort the list
 		m_NetGuiCheckBox.add(e);
 		SortNetGuiList<CNetMsg_Sv_NetGui_CheckBox>(m_NetGuiCheckBox);
+	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER)
+	{
+		CNetMsg_Sv_NetGui_CheckBoxNumber *pMsg = (CNetMsg_Sv_NetGui_CheckBoxNumber *)pRawMsg;
+
+		// setup a new element for our list
+		CNetMsg_Sv_NetGui_CheckBoxNumber e;
+
+		e.m_ID = pMsg->m_ID;
+		char* aBuf = (char*)mem_alloc(512, 0);
+		str_format(aBuf, 512, "%s", pMsg->m_Text);
+		e.m_Text = aBuf;
+		e.m_Value = pMsg->m_Value;
+		e.m_MinValue = pMsg->m_MinValue;
+		e.m_MaxValue = pMsg->m_MaxValue;
+		e.m_StepValue = pMsg->m_StepValue;
+		e.m_Dimension[0] = pMsg->m_Dimension[0];
+		e.m_Dimension[1] = pMsg->m_Dimension[1];
+		e.m_Dimension[2] = pMsg->m_Dimension[2];
+		e.m_Dimension[3] = pMsg->m_Dimension[3];
+
+		// check for duplicated IDs and overwrite them
+		if(m_NetGuiCheckBoxNumber.size() > 1)
+		{
+			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
+			{
+				if(m_NetGuiCheckBoxNumber[i].m_ID == e.m_ID)
+					m_NetGuiCheckBoxNumber.remove_index(i);
+			}
+		}
+
+		// save the element and resort the list
+		m_NetGuiCheckBoxNumber.add(e);
+		SortNetGuiList<CNetMsg_Sv_NetGui_CheckBoxNumber>(m_NetGuiCheckBoxNumber);
 	}
 }

@@ -554,8 +554,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		static int s_ButtonID[1024]; // nobody will create so much buttons :p
-		if(DoButton_Menu(&s_ButtonID[i], e.m_Text, e.m_Checked, &Rect))
+		static int s_ID[1024]; // nobody will create so much buttons :p
+		if(DoButton_Menu(&s_ID[i], e.m_Text, e.m_Checked, &Rect))
 			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
 	}
 
@@ -577,19 +577,18 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.h = yb - ya;
 
 		static char aText[1024][1024];
-		static int s_EditBoxID[1024];
 		static float s_Offset[1024];
 		static bool called[1024];
 		if(!called[i])
 		{
 			//str_copy(aText[i], e.m_Text, sizeof(aText[i]));
-			s_EditBoxID[i] = 0;
 			s_Offset[i] = 0.0f;
 			called[i] = true;
 		}
+		static int s_ID[1024];
 		// the first one doesn't work o_O But the second one is more awesome anyway!
 		//DoEditBox((void*)&s_EditBoxID[i], &Rect, aText[i], (unsigned int)str_length(aText[i]), (float)e.m_FontSize/10.0f, &s_Offset[i], e.m_Password ? true : false, e.m_Corner);
-		DoEditBoxOption((void *)&s_EditBoxID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password ? true : false);
+		DoEditBoxOption((void *)&s_ID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
 	}
 
@@ -599,28 +598,62 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		if(i >= 1024) break;
 
 		CUIRect Rect;
-		CNetMsg_Sv_NetGui_CheckBox e = m_pClient->m_pNetGui->m_NetGuiCheckBox[i];
+		CNetMsg_Sv_NetGui_CheckBox *e = &m_pClient->m_pNetGui->m_NetGuiCheckBox[i];
 
-		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
+		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
 		Rect.x = xa;
 		Rect.y = ya;
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		static int s_CheckBoxID[1024];
-		static bool called[1024];
-		if(!called[i])
-		{
-			s_CheckBoxID[i] = 0;
-			m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i] = e.m_Checked ? true : false;
-			called[i] = true;
-		}
+		static int s_ID[1024];
+		if(DoButton_CheckBox(&s_ID[i], e->m_Text, e->m_Checked, &Rect))
+			e->m_Checked ^= 1;
+	}
 
-		if(DoButton_CheckBox(&s_CheckBoxID[i], e.m_Text, m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i], &Rect))
-			m_pClient->m_pNetGui->m_aNetGuiCheckBoxState[i] ^= 1;
+	// CheckBox
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiCheckBoxNumber.size(); i++)
+	{
+		if(i >= 1024) break;
+
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_CheckBoxNumber *e = &m_pClient->m_pNetGui->m_NetGuiCheckBoxNumber[i];
+
+		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static int s_ID[1024];
+		int MouseButton = DoButton_CheckBox_Number(&s_ID[i], e->m_Text, e->m_Value, &Rect);
+		if(MouseButton == 1) // primary click
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "step=%d", e->m_StepValue);
+			if(e->m_Value == e->m_MaxValue)
+				e->m_Value = e->m_MinValue;
+			else if(e->m_Value + e->m_StepValue > e->m_MaxValue)
+				e->m_Value = e->m_MaxValue;
+			else
+				e->m_Value += e->m_StepValue;
+		}
+		else if(MouseButton == 2) // secondary click
+		{
+
+			if(e->m_Value == e->m_MinValue)
+				e->m_Value = e->m_MaxValue;
+			else if(e->m_Value - e->m_StepValue < e->m_MinValue)
+				e->m_Value = e->m_MinValue;
+			else
+				e->m_Value -= e->m_StepValue;
+		}
 	}
 }
 

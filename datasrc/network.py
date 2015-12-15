@@ -337,6 +337,10 @@ Messages = [
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),
 	]),
+	NetMessage("Sv_NetGui_RequestData", [
+		NetIntAny("m_ID"),
+		NetIntAny("m_Type"),
+	]),
 
 	NetMessage("Sv_NetGui_UIRect", [
 		NetIntAny("m_ID"),
@@ -363,7 +367,8 @@ Messages = [
 		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
 	##	NetArray(NetIntRange("m_Color", 0, 100), 4),
 	]),
-	NetMessage("Cl_NetGui_ButtonMenu_Pressed", [
+	## maybe make this universal for all elements...?
+	NetMessage("Cl_NetGui_ButtonMenu_Pressed", [ 
 		NetIntAny("m_ID"),
 	]),
 
@@ -376,14 +381,6 @@ Messages = [
 		NetIntRange("m_Password", 0, 1),
 		##NetIntRange("m_Corner", 0, 255),
 	]),
-	NetMessage("Sv_NetGui_RequestContent", [
-		NetIntAny("m_ID"),
-		NetIntAny("m_Type"),
-	]),
-	NetMessage("Cl_NetGui_EditBox_Content", [
-		NetIntAny("m_ID"),
-		NetString("m_Text"),
-	]),
 
 	NetMessage("Sv_NetGui_CheckBox", [
 		NetIntAny("m_ID"),
@@ -391,14 +388,16 @@ Messages = [
 		NetString("m_Text"),
 		NetIntRange("m_Checked", 0, 1),
 	]),
-	NetMessage("Cl_NetGui_CheckBox_State", [
+
+	NetMessage("Sv_NetGui_CheckBoxNumber", [
 		NetIntAny("m_ID"),
-		NetIntRange("m_Checked", 0, 1),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Text"),
+		NetIntAny("m_Value"),
+		NetIntAny("m_MinValue"),
+		NetIntAny("m_MaxValue"),
+		NetIntAny("m_StepValue"),
 	]),
-		
-
-
-
 
 
 
@@ -413,7 +412,25 @@ Messages = [
 		NetStringStrict("m_pReason"),
 	]),
 
+
+
+
 	### Client messages
+
+	## NetGUI
+	NetMessage("Cl_NetGui_ResponseInt", [
+		NetIntAny("m_ID"),
+		NetIntAny("m_Type"),
+		NetIntAny("m_Value"),
+	]),
+	NetMessage("Cl_NetGui_ResponseString", [
+		NetIntAny("m_ID"),
+		NetIntAny("m_Type"),
+		NetString("m_Text"),
+	]),
+
+
+	## Vanilla
 	NetMessage("Cl_Say", [
 		NetBool("m_Team"),
 		NetStringStrict("m_pMessage"),

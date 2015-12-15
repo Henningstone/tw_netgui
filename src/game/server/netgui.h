@@ -30,12 +30,11 @@ public:
 	void ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int Checked, vec4 Dimensions);
 	void EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password);
 	void CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int Checked);
+	void CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue);
 
 	void OnClientEnter(int ClientID);
 	void OnClientDrop(int ClientID); // nah
 	void OnMessage(int MsgID, void *pRawMsg, int ClientID);
-
-	array<CNetMsg_Sv_NetGui_ButtonMenu> &GetButtonMenu(int ClientID) { return m_ButtonMenu[ClientID]; }
 
 protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
@@ -46,10 +45,11 @@ private:
 	array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_EditBox> m_EditBox[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_CheckBox> m_CheckBox[MAX_CLIENTS];
+	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_CheckBoxNumber[MAX_CLIENTS];
 
 	template<class T>
 	void SendNetGui(int ClientID, T Msg);
-	void RequestData(int ClientID, int NetGuiElemID, int Type);
+	void RequestData(int ClientID, int Type, int NetGuiElemID);
 
 
 };

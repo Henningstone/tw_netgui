@@ -17,8 +17,8 @@ public:
 	array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
 	array<CNetMsg_Sv_NetGui_EditBox> m_NetGuiEditBox;
 	array<CNetMsg_Sv_NetGui_CheckBox> m_NetGuiCheckBox;
-	char m_aNetGuiEditBoxContent[1024][1024];
-	int m_aNetGuiCheckBoxState[1024];
+	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_NetGuiCheckBoxNumber;
+	char m_aNetGuiEditBoxContent[1024][1024]; // necessary because it cannot be stored into the NetMsg (CONST char...)
 
 	// maxsort to get stuff into correct render order.
 	template<class T>
