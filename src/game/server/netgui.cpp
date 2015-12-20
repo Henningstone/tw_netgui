@@ -19,7 +19,7 @@ void CNetGui::RemoveGui_ExampleClosed(int ClientID)
 
 void CNetGui::CreateGui_Example1(int ClientID)
 {
-	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 50);
+	UIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 5.0f);
 	Label(ClientID, 0, ">)^_^)> Welcome to this NetGUI server! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 100-0);
 	Label(ClientID, 1, "(: Click the button! <(^_^(<", vec4(0, 100, 10, 20), vec4(80, 0, 50, 80), 20, 1, 100-0);
 	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 100-1);
@@ -38,7 +38,7 @@ void CNetGui::RemoveGui_Example1(int ClientID)
 
 void CNetGui::CreateGui_Example2(int ClientID)
 {
-	UIRect(ClientID, 1, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 50);
+	UIRect(ClientID, 1, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 5.0f);
 	Label(ClientID, 0, ">)^_^)> Welcome to Page 2! :)", vec4(0, 100, 0, 10), vec4(80, 0, 0, 90), 20, 1, 100-0);
 	Label(ClientID, 1, "(: Congraz for clicking! <(^_^(<", vec4(0, 100, 10, 20), vec4(50, 0, 80, 80), 20, 1, 100-0);
 	Label(ClientID, 2, "NetGUI mod (c) 2015 by Henritees :P", vec4(1, 100, 96, 99), vec4(100, 20, 20, 70), 10, 0, 100-1);
@@ -56,7 +56,7 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	ButtonMenu(ClientID, 7, "Print me :P", 0, vec4(5, 15, 35+7, 40+7));
 	Label(ClientID, 6, "<- Print your login data (from below ↓) into the chat... public! mehe!", vec4(15+3, 100, 35+7, 40+7), vec4(30, 100, 20, 80), 13, 0, 10);
 
-	UIRect(ClientID, 2, vec4(5, 50, 40+9, 60+15), vec4(0, 0, 40, 85), 15, 30);
+	UIRect(ClientID, 2, vec4(5, 50, 40+9, 60+15), vec4(0, 0, 40, 85), 15, 3.0f);
 	Label(ClientID, 7, "Server Account Login (just as an example ^^)", vec4(5+2, 50-2, 40+9+1, 45+9+1), vec4(100,100,100,100), 10, 1, (50-2)-(5+2));
 	EditBox(ClientID, 0, vec4(5+3, 50-3, 45+11, 50+11), "Login name", 50, 16, false);
 	EditBox(ClientID, 1, vec4(5+3, 50-3, 50+13, 55+13), "Password", 50, 16, true);
@@ -67,6 +67,8 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	CheckBoxNumber(ClientID, 0, vec4(5, 50, 65+19, 70+19), "Amazing Number-Checkbox ;)", 0, 16, 2);
 	ButtonMenu(ClientID, 9, "»", 0, vec4(50+3, 55+3, 65+19, 70+19));
 
+	Scrollbar(ClientID, 0, vec4(5, 50, 70+21, 75+21), "Scroooool-me-bar", 55.0f, 0, 100, false);
+	ButtonMenu(ClientID, 10, "»", 0, vec4(50+3, 55+3, 70+21, 75+21));
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -87,10 +89,12 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 8);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 9);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 10);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
 
 }
 
@@ -110,6 +114,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_EditBox[ClientID].clear();
 	m_CheckBox[ClientID].clear();
 	m_CheckBoxNumber[ClientID].clear();
+	m_Scrollbar[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -155,7 +160,7 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				GameServer()->SendChat(ClientID, 0, aBuf);
 				break;
 			case 6: // f!ck
-				GameServer()->Server()->Kick(ClientID, "haste dich selber gef***t, ne? :P");
+				GameServer()->Server()->Kick(ClientID, "You just got fckd up by yourself :P");
 				break;
 			case 7:
 				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
@@ -167,10 +172,13 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			case 9:
 				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
 				break;
+			case 10:
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
+				break;
 			}
 		}
 	}
-	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSESTRING)
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSESTRING) // TODO: handle string responses
 	{
 		CNetMsg_Cl_NetGui_ResponseString *pMsg = (CNetMsg_Cl_NetGui_ResponseString *)pRawMsg;
 
@@ -203,7 +211,7 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			break;
 		}
 	}
-	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSEINT)
+	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSEINT) // TODO: handle integer responses
 	{
 		CNetMsg_Cl_NetGui_ResponseInt *pMsg = (CNetMsg_Cl_NetGui_ResponseInt *)pRawMsg;
 
@@ -214,15 +222,22 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "'%s' made checkbox being %s! Well done :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value ? "checked" : "unchecked");
 			GameServer()->SendChatTarget(-1, aBuf);
-			break;
 		}
+		break;
 		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
 		{
 			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "'%s' set the number-checkbox to %i! Nice :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value);
 			GameServer()->SendChatTarget(-1, aBuf);
-			break;
 		}
+		break;
+		case NETMSGTYPE_SV_NETGUI_SCROLLBAR:
+		{
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' scrooolled the bar to value %i! Great :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value);
+			GameServer()->SendChatTarget(-1, aBuf);
+		}
+		break;
 		}
 	}
 }
@@ -282,7 +297,7 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 	SendNetGui(ClientID, Msg);
 }
 
-void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, int RoundingX10)
+void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding)
 {
 	CNetMsg_Sv_NetGui_UIRect Msg;
 	Msg.m_ID = NetGuiElemID;
@@ -295,7 +310,7 @@ void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color
 	Msg.m_Color[2] = Color.b;
 	Msg.m_Color[3] = Color.a;
 	Msg.m_Corner = Corner;
-	Msg.m_RoundingX10 = RoundingX10;
+	Msg.m_RoundingX10 = (int)(Rounding*10.0f);
 
 	m_UIRect[ClientID].add(Msg);
 
@@ -392,6 +407,27 @@ void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, co
 
 	SendNetGui(ClientID, Msg);
 }
+
+void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
+{
+	CNetMsg_Sv_NetGui_Scrollbar Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Text = pText;
+	Msg.m_VSplitValX10 = (int)(VSplitVal*10.0f);
+	Msg.m_MinValue = Min;
+	Msg.m_MaxValue = Max;
+	Msg.m_Infinite = Infinite ? 1 : 0;
+
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+
+	m_Scrollbar[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
+
 
 template<class T>
 void CNetGui::SendNetGui(int ClientID, T Msg)

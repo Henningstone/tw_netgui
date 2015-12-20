@@ -489,7 +489,6 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e.m_Color[2]/100.0f,
 				e.m_Color[3]/100.0f);
 		RenderTools()->DrawUIRect(&Rect, Color, e.m_Corner, e.m_RoundingX10/10.0f);
-		//DoEditBox()
 	}
 
 	// Label
@@ -554,7 +553,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		static int s_ID[1024]; // nobody will create so much buttons :p
+		static int s_ID[1024] = {0}; // nobody will create so much buttons :p
 		if(DoButton_Menu(&s_ID[i], e.m_Text, e.m_Checked, &Rect))
 			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
 	}
@@ -577,18 +576,9 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.h = yb - ya;
 
 		static char aText[1024][1024];
-		static float s_Offset[1024];
-		static bool called[1024];
-		if(!called[i])
-		{
-			//str_copy(aText[i], e.m_Text, sizeof(aText[i]));
-			s_Offset[i] = 0.0f;
-			called[i] = true;
-		}
-		static int s_ID[1024];
-		// the first one doesn't work o_O But the second one is more awesome anyway!
-		//DoEditBox((void*)&s_EditBoxID[i], &Rect, aText[i], (unsigned int)str_length(aText[i]), (float)e.m_FontSize/10.0f, &s_Offset[i], e.m_Password ? true : false, e.m_Corner);
-		DoEditBoxOption((void *)&s_ID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password ? true : false);
+		static float s_Offset[1024] = {0};
+		static int s_ID[1024] ={0};
+		DoEditBoxOption((void *)&s_ID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password == 1 ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
 	}
 
@@ -609,12 +599,12 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		static int s_ID[1024];
+		static int s_ID[1024] = {0};
 		if(DoButton_CheckBox(&s_ID[i], e->m_Text, e->m_Checked, &Rect))
 			e->m_Checked ^= 1;
 	}
 
-	// CheckBox
+	// CheckBoxNumber
 	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiCheckBoxNumber.size(); i++)
 	{
 		if(i >= 1024) break;
@@ -631,7 +621,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.w = xb - xa;
 		Rect.h = yb - ya;
 
-		static int s_ID[1024];
+		static int s_ID[1024] = {0};
 		int MouseButton = DoButton_CheckBox_Number(&s_ID[i], e->m_Text, e->m_Value, &Rect);
 		if(MouseButton == 1) // primary click
 		{
@@ -654,6 +644,29 @@ void CMenus::RenderNetGui(CUIRect MainView)
 			else
 				e->m_Value -= e->m_StepValue;
 		}
+	}
+
+	// Scrollbar
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiScrollbar.size(); i++)
+	{
+		if(i >= 1024) break;
+
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_Scrollbar *e = &m_pClient->m_pNetGui->m_NetGuiScrollbar[i];
+
+		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static int s_ID[1024] = {0};
+		static int s_Value[1024] = {0};
+		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1 ? true : false);
+		e->m_Value = s_Value[i];
 	}
 }
 
