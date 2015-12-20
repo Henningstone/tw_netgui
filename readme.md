@@ -2,6 +2,7 @@ Teeworlds
 =========
 
 [![Join the chat at https://gitter.im/Henningstone/tw_netgui](https://badges.gitter.im/Henningstone/tw_netgui.svg)](https://gitter.im/Henningstone/tw_netgui?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[ ![Download](https://api.bintray.com/packages/henningstone/tw_netgui/tw_netgui/images/download.svg) ](https://bintray.com/henningstone/tw_netgui/tw_netgui/_latestVersion)
 
 A retro multiplayer shooter
 ---------------------------
@@ -36,3 +37,4 @@ Both, client and server, need to support this feature. To play on servers which 
 
 Licence: You are allowed to embed this into your mod (non-commercial aswell as commercial) without asking, as long as you give credit to me. You are not allowed to re-distribute the code of this mod (NetGUI client and server) as if it were yours, no matter if it is modified or not! "As if it were yours" means, that you are not allowed to remove my name from the files I added. Redistributing the GUIs you make is of cause up to your mind and I don't care about it.
 If you want somebody to have the entire source code, give him the link to my github repo (Henningstone/tw_netgui). If you want to participate in NetGUI, you are welcome to make a pull-request. Thanks.
+
