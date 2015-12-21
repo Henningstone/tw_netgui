@@ -71,7 +71,7 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	ButtonMenu(ClientID, 10, "»", 0, vec4(50+3, 55+3, 70+21, 75+21));
 
 	Scrollbar(ClientID, 0, vec4(90, 95, 5, 50), true);
-	ButtonMenu(ClientID, 10, "»", 0, vec4(90, 95, 50+5, 60+5));
+	ButtonMenu(ClientID, 11, "»", 0, vec4(90, 95, 50+5, 60+5));
 
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
@@ -94,6 +94,7 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 8);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 9);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 10);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 11);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
@@ -178,6 +179,9 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
 				break;
 			case 10:
+				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION, 0);
+				break;
+			case 11:
 				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
 				break;
 			}
