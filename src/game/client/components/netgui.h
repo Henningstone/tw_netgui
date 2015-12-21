@@ -48,10 +48,10 @@ public:
 		}
 	}
 
-	template<class T>
-	void NetGui_ButtonPressed(int NetGuiElementID)
+	void SendEvent(int Type, int NetGuiElementID)
 	{
-		T Msg;
+		CNetMsg_Cl_NetGui_TriggerEvent Msg;
+		Msg.m_Type = Type;
 		Msg.m_ID = NetGuiElementID;
 		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 	}

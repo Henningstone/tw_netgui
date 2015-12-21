@@ -127,64 +127,70 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 {
 	CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
 
-	if (MsgID == NETMSGTYPE_CL_NETGUI_BUTTONMENU_PRESSED)
+	if (MsgID == NETMSGTYPE_CL_NETGUI_TRIGGEREVENT)
 	{
-		CNetMsg_Cl_NetGui_ButtonMenu_Pressed *pMsg = (CNetMsg_Cl_NetGui_ButtonMenu_Pressed *)pRawMsg;
-		bool exists = false;
-		for(int i = 0; i < m_ButtonMenu[ClientID].size(); i++)
+		CNetMsg_Cl_NetGui_TriggerEvent *pMsg = (CNetMsg_Cl_NetGui_TriggerEvent *)pRawMsg;
+
+		switch(pMsg->m_Type)
 		{
-			if(m_ButtonMenu[ClientID][i].m_ID == pMsg->m_ID)
-				exists = true;
-		}
-		if(exists)
-		{
-			// TODO: handle button presses
-			switch(pMsg->m_ID)
+		case NETMSGTYPE_SV_NETGUI_BUTTONMENU:
+			bool exists = false;
+			for(int i = 0; i < m_ButtonMenu[ClientID].size(); i++)
 			{
-			case 0: // close
-				RemoveGui_Example1(ClientID);
-				CreateGui_ExampleClosed(ClientID);
-				break;
-			case 1: // open page 1
-				RemoveGui_ExampleClosed(ClientID);
-				CreateGui_Example1(ClientID);
-				break;
-			case 2: // switch to page 2
-				RemoveGui_Example1(ClientID);
-				CreateGui_Example2(ClientID);
-				break;
-			case 3: // switch back to page 1
-				RemoveGui_Example2(ClientID);
-				CreateGui_Example1(ClientID);
-				break;
-			case 4: // kill
-				GameServer()->m_apPlayers[ClientID]->KillCharacter(0);
-				break;
-			case 5: // troll
-				char aBuf[128];
-				str_format(aBuf, sizeof(aBuf), "Gob Gob Gob Gob who want some coooookies....? ^-^ Ask %s!", GameServer()->Server()->ClientName(ClientID));
-				GameServer()->SendChat(ClientID, 0, aBuf);
-				break;
-			case 6: // f!ck
-				GameServer()->Server()->Kick(ClientID, "You just got fckd up by yourself :P");
-				break;
-			case 7:
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
-				break;
-			case 8:
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
-				break;
-			case 9:
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
-				break;
-			case 10:
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION, 0);
-				break;
-			case 11:
-				RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
-				break;
+				if(m_ButtonMenu[ClientID][i].m_ID == pMsg->m_ID)
+					exists = true;
 			}
+			if(exists)
+			{
+				// TODO: handle button presses
+				switch(pMsg->m_ID)
+				{
+				case 0: // close
+					RemoveGui_Example1(ClientID);
+					CreateGui_ExampleClosed(ClientID);
+					break;
+				case 1: // open page 1
+					RemoveGui_ExampleClosed(ClientID);
+					CreateGui_Example1(ClientID);
+					break;
+				case 2: // switch to page 2
+					RemoveGui_Example1(ClientID);
+					CreateGui_Example2(ClientID);
+					break;
+				case 3: // switch back to page 1
+					RemoveGui_Example2(ClientID);
+					CreateGui_Example1(ClientID);
+					break;
+				case 4: // kill
+					GameServer()->m_apPlayers[ClientID]->KillCharacter(0);
+					break;
+				case 5: // troll
+					char aBuf[128];
+					str_format(aBuf, sizeof(aBuf), "Gob Gob Gob Gob who want some coooookies....? ^-^ Ask %s!", GameServer()->Server()->ClientName(ClientID));
+					GameServer()->SendChat(ClientID, 0, aBuf);
+					break;
+				case 6: // f!ck
+					GameServer()->Server()->Kick(ClientID, "You just got fckd up by yourself :P");
+					break;
+				case 7:
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
+					break;
+				case 8:
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
+					break;
+				case 9:
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
+					break;
+				case 10:
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION, 0);
+					break;
+				case 11:
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
+					break;
+				}
+			}
+			break;
 		}
 	}
 	else if(MsgID == NETMSGTYPE_CL_NETGUI_RESPONSESTRING) // TODO: handle string responses

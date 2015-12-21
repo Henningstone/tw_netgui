@@ -366,11 +366,7 @@ Messages = [
 		NetIntRange("m_Checked", 0, 1),
 		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
 	##	NetArray(NetIntRange("m_Color", 0, 100), 4),
-	]),
-	## maybe make this universal for all elements...?
-	NetMessage("Cl_NetGui_ButtonMenu_Pressed", [ 
-		NetIntAny("m_ID"),
-	]),
+	]),	
 
 	NetMessage("Sv_NetGui_EditBox", [
 		NetIntAny("m_ID"),
@@ -440,6 +436,10 @@ Messages = [
 	### Client messages
 
 	## NetGUI
+	NetMessage("Cl_NetGui_TriggerEvent", [ 
+		NetIntAny("m_Type"),
+		NetIntAny("m_ID"),
+	]),
 	NetMessage("Cl_NetGui_ResponseInt", [
 		NetIntAny("m_ID"),
 		NetIntAny("m_Type"),

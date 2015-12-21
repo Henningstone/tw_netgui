@@ -555,7 +555,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 		static int s_ID[1024] = {0}; // nobody will create so much buttons :p
 		if(DoButton_Menu(&s_ID[i], e.m_Text, e.m_Checked, &Rect))
-			m_pClient->m_pNetGui->NetGui_ButtonPressed<CNetMsg_Cl_NetGui_ButtonMenu_Pressed>(e.m_ID);
+			m_pClient->m_pNetGui->SendEvent(NETMSGTYPE_SV_NETGUI_BUTTONMENU, e.m_ID);
 	}
 
 	// EditBox
