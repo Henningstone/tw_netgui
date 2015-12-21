@@ -31,7 +31,8 @@ public:
 	void EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password);
 	void CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int Checked);
 	void CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue);
-	void Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite);
+	void Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical = false);
+	void ScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite);
 
 	void OnClientEnter(int ClientID);
 	void OnClientDrop(int ClientID); // nah
@@ -48,6 +49,7 @@ private:
 	array<CNetMsg_Sv_NetGui_CheckBox> m_CheckBox[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_CheckBoxNumber[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_Scrollbar> m_Scrollbar[MAX_CLIENTS];
+	array<CNetMsg_Sv_NetGui_ScrollbarOption> m_ScrollbarOption[MAX_CLIENTS];
 
 	template<class T>
 	void SendNetGui(int ClientID, T Msg);

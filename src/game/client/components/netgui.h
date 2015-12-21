@@ -19,6 +19,7 @@ public:
 	array<CNetMsg_Sv_NetGui_CheckBox> m_NetGuiCheckBox;
 	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_NetGuiCheckBoxNumber;
 	array<CNetMsg_Sv_NetGui_Scrollbar> m_NetGuiScrollbar;
+	array<CNetMsg_Sv_NetGui_ScrollbarOption> m_NetGuiScrollbarOption;
 	char m_aNetGuiEditBoxContent[1024][1024]; // necessary because it cannot be stored into the NetMsg (CONST char...)
 
 	// maxsort to get stuff into correct render order.

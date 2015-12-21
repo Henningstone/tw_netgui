@@ -11,6 +11,7 @@ void CNetGui::OnReset()
 	m_NetGuiEditBox.clear();
 	m_NetGuiCheckBox.clear();
 	m_NetGuiScrollbar.clear();
+	m_NetGuiScrollbarOption.clear();
 }
 
 void CNetGui::OnMessage(int MsgId, void *pRawMsg)
@@ -69,6 +70,13 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			{
 				if(m_NetGuiScrollbar[i].m_ID == pMsg->m_ID)
 					m_NetGuiScrollbar.remove_index(i);
+			}
+			break;
+		case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
+			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
+			{
+				if(m_NetGuiScrollbarOption[i].m_ID == pMsg->m_ID)
+					m_NetGuiScrollbarOption.remove_index(i);
 			}
 			break;
 		}
@@ -145,7 +153,25 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 				CNetMsg_Cl_NetGui_ResponseInt Reply;
 				Reply.m_ID = pMsg->m_ID;
 				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Value = m_NetGuiScrollbar[index].m_Value;
+				Reply.m_Value = m_NetGuiScrollbar[index].m_ValueX100;
+				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
+			}
+		}
+		break;
+		case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
+		{
+			int index = -1;
+			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
+			{
+				if(m_NetGuiScrollbarOption[i].m_ID == pMsg->m_ID)
+					index = i;
+			}
+			if(index >= 0)
+			{
+				CNetMsg_Cl_NetGui_ResponseInt Reply;
+				Reply.m_ID = pMsg->m_ID;
+				Reply.m_Type = pMsg->m_Type;
+				Reply.m_Value = m_NetGuiScrollbarOption[index].m_Value;
 				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 			}
 		}
@@ -359,13 +385,6 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		CNetMsg_Sv_NetGui_Scrollbar e;
 
 		e.m_ID = pMsg->m_ID;
-		char* aBuf = (char*)mem_alloc(512, 0);
-		str_format(aBuf, 512, "%s", pMsg->m_Text);
-		e.m_Text = aBuf;
-		e.m_Value = pMsg->m_Value;
-		e.m_MinValue = pMsg->m_MinValue;
-		e.m_MaxValue = pMsg->m_MaxValue;
-		e.m_VSplitValX10 = pMsg->m_VSplitValX10;
 		e.m_Dimension[0] = pMsg->m_Dimension[0];
 		e.m_Dimension[1] = pMsg->m_Dimension[1];
 		e.m_Dimension[2] = pMsg->m_Dimension[2];
@@ -384,5 +403,39 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		// save the element and resort the list
 		m_NetGuiScrollbar.add(e);
 		SortNetGuiList<CNetMsg_Sv_NetGui_Scrollbar>(m_NetGuiScrollbar);
+	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION)
+	{
+		CNetMsg_Sv_NetGui_ScrollbarOption *pMsg = (CNetMsg_Sv_NetGui_ScrollbarOption *)pRawMsg;
+
+		// setup a new element for our list
+		CNetMsg_Sv_NetGui_ScrollbarOption e;
+
+		e.m_ID = pMsg->m_ID;
+		char* aBuf = (char*)mem_alloc(512, 0);
+		str_format(aBuf, 512, "%s", pMsg->m_Text);
+		e.m_Text = aBuf;
+		e.m_Value = pMsg->m_Value;
+		e.m_MinValue = pMsg->m_MinValue;
+		e.m_MaxValue = pMsg->m_MaxValue;
+		e.m_VSplitValX10 = pMsg->m_VSplitValX10;
+		e.m_Dimension[0] = pMsg->m_Dimension[0];
+		e.m_Dimension[1] = pMsg->m_Dimension[1];
+		e.m_Dimension[2] = pMsg->m_Dimension[2];
+		e.m_Dimension[3] = pMsg->m_Dimension[3];
+
+		// check for duplicated IDs and overwrite them
+		if(m_NetGuiScrollbarOption.size() > 1)
+		{
+			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
+			{
+				if(m_NetGuiScrollbarOption[i].m_ID == e.m_ID)
+					m_NetGuiScrollbarOption.remove_index(i);
+			}
+		}
+
+		// save the element and resort the list
+		m_NetGuiScrollbarOption.add(e);
+		SortNetGuiList<CNetMsg_Sv_NetGui_ScrollbarOption>(m_NetGuiScrollbarOption);
 	}
 }

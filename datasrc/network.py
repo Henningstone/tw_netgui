@@ -402,6 +402,16 @@ Messages = [
 	NetMessage("Sv_NetGui_Scrollbar", [
 		NetIntAny("m_ID"),
 		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetIntAny("m_ValueX100"),
+		NetIntRange("m_Vertical", 0, 1),
+		##NetIntAny("m_MinValue"),
+		##NetIntAny("m_MaxValue"),
+		##NetIntRange("m_Infinite", 0, 1),
+	]),
+	
+	NetMessage("Sv_NetGui_ScrollbarOption", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
 		NetString("m_Text"),
 		NetIntAny("m_VSplitValX10"),
 		NetIntAny("m_Value"),
@@ -409,6 +419,7 @@ Messages = [
 		NetIntAny("m_MaxValue"),
 		NetIntRange("m_Infinite", 0, 1),
 	]),
+	
 
 
 

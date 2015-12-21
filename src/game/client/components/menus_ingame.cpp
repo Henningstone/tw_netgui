@@ -664,6 +664,33 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		Rect.h = yb - ya;
 
 		static int s_ID[1024] = {0};
+		static float s_Value[1024] = {0.0f};
+		if(e->m_Vertical)
+			s_Value[i] = DoScrollbarV(&s_ID[i], &Rect, s_Value[i]);
+		else
+			s_Value[i] = DoScrollbarH(&s_ID[i], &Rect, s_Value[i]);
+
+		e->m_ValueX100 = (int)(s_Value[i] * 100.0f);
+	}
+
+	// ScrollbarOption
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiScrollbarOption.size(); i++)
+	{
+		if(i >= 1024) break;
+
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_ScrollbarOption *e = &m_pClient->m_pNetGui->m_NetGuiScrollbarOption[i];
+
+		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static int s_ID[1024] = {0};
 		static int s_Value[1024] = {0};
 		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1 ? true : false);
 		e->m_Value = s_Value[i];

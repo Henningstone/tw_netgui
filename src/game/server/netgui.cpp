@@ -67,8 +67,12 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	CheckBoxNumber(ClientID, 0, vec4(5, 50, 65+19, 70+19), "Amazing Number-Checkbox ;)", 0, 16, 2);
 	ButtonMenu(ClientID, 9, "»", 0, vec4(50+3, 55+3, 65+19, 70+19));
 
-	Scrollbar(ClientID, 0, vec4(5, 50, 70+21, 75+21), "Scroooool-me-bar", 55.0f, 0, 100, false);
+	ScrollbarOption(ClientID, 0, vec4(5, 50, 70+21, 75+21), "Scroooool-me-bar", 55.0f, 0, 100, false);
 	ButtonMenu(ClientID, 10, "»", 0, vec4(50+3, 55+3, 70+21, 75+21));
+
+	Scrollbar(ClientID, 0, vec4(90, 95, 5, 50), true);
+	ButtonMenu(ClientID, 10, "»", 0, vec4(90, 95, 50+5, 60+5));
+
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -95,6 +99,7 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION, 0);
 
 }
 
@@ -234,10 +239,18 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 		case NETMSGTYPE_SV_NETGUI_SCROLLBAR:
 		{
 			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' slided the sliding scroooollbar %i%! Wuhu :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value);
+			GameServer()->SendChatTarget(-1, aBuf);
+		}
+		break;
+		case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
+		{
+			char aBuf[128];
 			str_format(aBuf, sizeof(aBuf), "'%s' scrooolled the bar to value %i! Great :)", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value);
 			GameServer()->SendChatTarget(-1, aBuf);
 		}
 		break;
+
 		}
 	}
 }
@@ -408,9 +421,26 @@ void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, co
 	SendNetGui(ClientID, Msg);
 }
 
-void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
+void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical)
 {
 	CNetMsg_Sv_NetGui_Scrollbar Msg;
+	Msg.m_ID = NetGuiElemID;
+
+	Msg.m_Vertical = Vertical ? 1 : 0;
+
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+
+	m_Scrollbar[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::ScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
+{
+	CNetMsg_Sv_NetGui_ScrollbarOption Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
 	Msg.m_VSplitValX10 = (int)(VSplitVal*10.0f);
@@ -423,7 +453,7 @@ void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, const c
 	Msg.m_Dimension[2] = Dimensions.a;
 	Msg.m_Dimension[3] = Dimensions.b;
 
-	m_Scrollbar[ClientID].add(Msg);
+	m_ScrollbarOption[ClientID].add(Msg);
 
 	SendNetGui(ClientID, Msg);
 }
