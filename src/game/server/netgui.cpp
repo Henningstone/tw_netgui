@@ -315,6 +315,21 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 				m_CheckBoxNumber[ClientID].remove_index(i);
 		}
 		break;
+	case NETMSGTYPE_SV_NETGUI_SCROLLBAR:
+		for(int i = 0; i < m_Scrollbar[ClientID].size(); i++)
+		{
+			if(m_Scrollbar[ClientID][i].m_ID == NetGuiElemID)
+				m_Scrollbar[ClientID].remove_index(i);
+		}
+		break;
+	case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
+		for(int i = 0; i < m_ScrollbarOption[ClientID].size(); i++)
+		{
+			if(m_ScrollbarOption[ClientID][i].m_ID == NetGuiElemID)
+				m_ScrollbarOption[ClientID].remove_index(i);
+		}
+		break;
+
 	}
 
 	SendNetGui(ClientID, Msg);
