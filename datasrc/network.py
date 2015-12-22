@@ -332,11 +332,65 @@ Messages = [
 
 	NetMessage("Sv_GameMsg", []),
 
-	## netgui messages
+	## Demo messages
+	NetMessage("De_ClientEnter", [
+		NetStringStrict("m_pName"),
+		NetIntRange("m_Team", 'TEAM_SPECTATORS', 'TEAM_BLUE'),
+	]),
+
+	NetMessage("De_ClientLeave", [
+		NetStringStrict("m_pName"),
+		NetStringStrict("m_pReason"),
+	]),
+
+	### Client messages
+	NetMessage("Cl_Say", [
+		NetBool("m_Team"),
+		NetStringStrict("m_pMessage"),
+	]),
+
+	NetMessage("Cl_SetTeam", [
+		NetIntRange("m_Team", 'TEAM_SPECTATORS', 'TEAM_BLUE'),
+	]),
+
+	NetMessage("Cl_SetSpectatorMode", [
+		NetIntRange("m_SpectatorID", 'SPEC_FREEVIEW', 'MAX_CLIENTS-1'),
+	]),
+
+	NetMessage("Cl_StartInfo", [
+		NetStringStrict("m_pName"),
+		NetStringStrict("m_pClan"),
+		NetIntAny("m_Country"),
+		NetArray(NetStringStrict("m_apSkinPartNames"), 6),
+		NetArray(NetBool("m_aUseCustomColors"), 6),
+		NetArray(NetIntAny("m_aSkinPartColors"), 6),
+	]),
+
+	NetMessage("Cl_Kill", []),
+
+	NetMessage("Cl_ReadyChange", []),
+
+	NetMessage("Cl_Emoticon", [
+		NetEnum("m_Emoticon", Emoticons),
+	]),
+
+	NetMessage("Cl_Vote", [
+		NetIntRange("m_Vote", -1, 1),
+	]),
+
+	NetMessage("Cl_CallVote", [
+		NetStringStrict("m_Type"),
+		NetStringStrict("m_Value"),
+		NetStringStrict("m_Reason"),
+		NetBool("m_Force"),
+	]),
+
+	## NetGUI
 	NetMessage("Sv_NetGui_RemoveElement", [
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),
 	]),
+
 	NetMessage("Sv_NetGui_RequestData", [
 		NetIntAny("m_ID"),
 		NetIntAny("m_Type"),
@@ -404,7 +458,7 @@ Messages = [
 		##NetIntAny("m_MaxValue"),
 		##NetIntRange("m_Infinite", 0, 1),
 	]),
-	
+
 	NetMessage("Sv_NetGui_ScrollbarOption", [
 		NetIntAny("m_ID"),
 		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
@@ -415,82 +469,21 @@ Messages = [
 		NetIntAny("m_MaxValue"),
 		NetIntRange("m_Infinite", 0, 1),
 	]),
-	
 
-
-
-	## Demo messages
-	NetMessage("De_ClientEnter", [
-		NetStringStrict("m_pName"),
-		NetIntRange("m_Team", 'TEAM_SPECTATORS', 'TEAM_BLUE'),
-	]),
-
-	NetMessage("De_ClientLeave", [
-		NetStringStrict("m_pName"),
-		NetStringStrict("m_pReason"),
-	]),
-
-
-
-
-	### Client messages
-
-	## NetGUI
 	NetMessage("Cl_NetGui_TriggerEvent", [ 
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),
 	]),
+
 	NetMessage("Cl_NetGui_ResponseInt", [
 		NetIntAny("m_ID"),
 		NetIntAny("m_Type"),
 		NetIntAny("m_Value"),
 	]),
+
 	NetMessage("Cl_NetGui_ResponseString", [
 		NetIntAny("m_ID"),
 		NetIntAny("m_Type"),
 		NetString("m_Text"),
-	]),
-
-
-	## Vanilla
-	NetMessage("Cl_Say", [
-		NetBool("m_Team"),
-		NetStringStrict("m_pMessage"),
-	]),
-
-	NetMessage("Cl_SetTeam", [
-		NetIntRange("m_Team", 'TEAM_SPECTATORS', 'TEAM_BLUE'),
-	]),
-
-	NetMessage("Cl_SetSpectatorMode", [
-		NetIntRange("m_SpectatorID", 'SPEC_FREEVIEW', 'MAX_CLIENTS-1'),
-	]),
-
-	NetMessage("Cl_StartInfo", [
-		NetStringStrict("m_pName"),
-		NetStringStrict("m_pClan"),
-		NetIntAny("m_Country"),
-		NetArray(NetStringStrict("m_apSkinPartNames"), 6),
-		NetArray(NetBool("m_aUseCustomColors"), 6),
-		NetArray(NetIntAny("m_aSkinPartColors"), 6),
-	]),
-
-	NetMessage("Cl_Kill", []),
-
-	NetMessage("Cl_ReadyChange", []),
-
-	NetMessage("Cl_Emoticon", [
-		NetEnum("m_Emoticon", Emoticons),
-	]),
-
-	NetMessage("Cl_Vote", [
-		NetIntRange("m_Vote", -1, 1),
-	]),
-
-	NetMessage("Cl_CallVote", [
-		NetStringStrict("m_Type"),
-		NetStringStrict("m_Value"),
-		NetStringStrict("m_Reason"),
-		NetBool("m_Force"),
 	]),
 ]
