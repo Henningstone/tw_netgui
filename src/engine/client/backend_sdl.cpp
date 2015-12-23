@@ -453,9 +453,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Screenshot(const CCommandBuffer::SCom
 	GLint aViewport[4] = {0,0,0,0};
 	glGetIntegerv(GL_VIEWPORT, aViewport);
 
-	int w = aViewport[2];
-	int h = aViewport[3];
-
+	int w = pCommand->m_W == -1 ? aViewport[2] : pCommand->m_W;
+	int h = pCommand->m_H == -1 ? aViewport[3] : pCommand->m_H;
+	int x = pCommand->m_X;
+	int y = aViewport[3] - pCommand->m_Y - 1 - (h - 1);
+	
 	// we allocate one more row to use when we are flipping the texture
 	unsigned char *pPixelData = (unsigned char *)mem_alloc(w*(h+1)*3, 1);
 	unsigned char *pTempRow = pPixelData+w*h*3;
@@ -464,15 +466,15 @@ void CCommandProcessorFragment_OpenGL::Cmd_Screenshot(const CCommandBuffer::SCom
 	GLint Alignment;
 	glGetIntegerv(GL_PACK_ALIGNMENT, &Alignment);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(0,0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pPixelData);
+	glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pPixelData);
 	glPixelStorei(GL_PACK_ALIGNMENT, Alignment);
 
 	// flip the pixel because opengl works from bottom left corner
-	for(int y = 0; y < h/2; y++)
+	for(int ty = 0; ty < h/2; ty++)
 	{
-		mem_copy(pTempRow, pPixelData+y*w*3, w*3);
-		mem_copy(pPixelData+y*w*3, pPixelData+(h-y-1)*w*3, w*3);
-		mem_copy(pPixelData+(h-y-1)*w*3, pTempRow,w*3);
+		mem_copy(pTempRow, pPixelData+ty*w*3, w*3);
+		mem_copy(pPixelData+ty*w*3, pPixelData+(h-ty-1)*w*3, w*3);
+		mem_copy(pPixelData+(h-ty-1)*w*3, pTempRow,w*3);
 	}
 
 	// fill in the information
@@ -665,6 +667,13 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	*pDesktopWidth = DisplayMode.w;
 	*pDesktopHeight = DisplayMode.h;
 
+	// use desktop resolution as default resolution
+	if (*pWidth == 0 || *pWidth == 0)
+	{
+		*pWidth = *pDesktopWidth;
+		*pHeight = *pDesktopHeight;
+	}
+
 	// set flags
 	int SdlFlags = SDL_WINDOW_OPENGL;
 	if(Flags&IGraphicsBackend::INITFLAG_RESIZABLE)
@@ -677,7 +686,7 @@ int CGraphicsBackend_SDL_OpenGL::Init(const char *pName, int *Screen, int *pWidt
 	*pWidth = *pDesktopWidth;
 	*pHeight = *pDesktopHeight;
 #else
-		SdlFlags |= (*pWidth == 0 || *pHeight == 0) ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;	// use desktop resolution as default
+		SdlFlags |= SDL_WINDOW_FULLSCREEN;
 #endif
 	
 	// set gl attributes
