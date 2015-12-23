@@ -38,10 +38,14 @@ public:
 	void OnClientDrop(int ClientID); // nah
 	void OnMessage(int MsgID, void *pRawMsg, int ClientID);
 
+	bool IsNetGuiClient(int ClientID) { return m_NetGuiClients[ClientID]; }
+
 protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 
 private:
+	bool m_NetGuiClients[MAX_CLIENTS]; // could have been put into CPlayer as well, but I want to keep stuff together
+
 	array<CNetMsg_Sv_NetGui_UIRect> m_UIRect[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_Label> m_Label[MAX_CLIENTS];
 	array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu[MAX_CLIENTS];

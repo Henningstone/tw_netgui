@@ -1,5 +1,6 @@
 // Copyright (c) 2015 Henritees
 
+#include <game/version.h>
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
 #include <engine/server.h>
@@ -106,14 +107,14 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 
 // ------------------------------ [end of GUI managing methods] -----------------------------
 
+
 void CNetGui::OnClientEnter(int ClientID)
 {
-	// send an example GUI to every entering client
-	CreateGui_Example1(ClientID);
 }
 
 void CNetGui::OnClientDrop(int ClientID)
 {
+	m_NetGuiClients[ClientID] = false;
 	m_UIRect[ClientID].clear();
 	m_Label[ClientID].clear();
 	m_ButtonMenu[ClientID].clear();
@@ -121,6 +122,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_CheckBox[ClientID].clear();
 	m_CheckBoxNumber[ClientID].clear();
 	m_Scrollbar[ClientID].clear();
+	m_ScrollbarOption[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -133,6 +135,30 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 
 		switch(pMsg->m_Type)
 		{
+		case 1883:
+			if(pMsg->m_ID == GAME_NETGUI_NUMERICVERSION)
+			{
+				dbg_msg("netgui", "client ID:%d has proven full compatibility (%d)", ClientID, pMsg->m_ID);
+				m_NetGuiClients[ClientID] = true;
+
+				// this seems to be the earliest moment possible for sending the first GUI...
+				CreateGui_Example1(ClientID);
+			}
+			else if(pMsg->m_ID < GAME_NETGUI_NUMERICVERSION)
+			{
+				dbg_msg("netgui", "client ID:%d is out of date (%d < %d)", ClientID, pMsg->m_ID, GAME_NETGUI_NUMERICVERSION);
+				GameServer()->SendChatTarget(ClientID, "Your client version of NetGUI is outdated. Consider upgrading.");
+				char aBuf[128];
+				str_format(aBuf, sizeof(aBuf), "Your version: %d,", pMsg->m_ID);
+				GameServer()->SendChatTarget(ClientID, aBuf);
+				str_format(aBuf, sizeof(aBuf), "Server's version: %d (built on %s)", GAME_NETGUI_NUMERICVERSION, GAME_BUILD_DATE);
+				GameServer()->SendChatTarget(ClientID, aBuf);
+			}
+			else
+				dbg_msg("netgui", "client ID:%d has newer version (%d > %d)", ClientID, pMsg->m_ID, GAME_NETGUI_NUMERICVERSION);
+
+
+		break;
 		case NETMSGTYPE_SV_NETGUI_BUTTONMENU:
 			bool exists = false;
 			for(int i = 0; i < m_ButtonMenu[ClientID].size(); i++)
@@ -267,6 +293,9 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 
 void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_RemoveElement Msg;
 	Msg.m_Type = Type;
 	Msg.m_ID = NetGuiElemID;
@@ -337,6 +366,9 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 
 void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_UIRect Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Dimension[0] = Dimensions.x;
@@ -357,6 +389,9 @@ void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color
 
 void CNetGui::Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dimensions, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_Label Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
@@ -379,6 +414,9 @@ void CNetGui::Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dime
 
 void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int Checked, vec4 Dimensions)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_ButtonMenu Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
@@ -395,6 +433,9 @@ void CNetGui::ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int 
 
 void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_EditBox Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Dimension[0] = Dimensions.x;
@@ -413,6 +454,9 @@ void CNetGui::EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const cha
 
 void CNetGui::CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int Checked)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_CheckBox Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
@@ -429,6 +473,9 @@ void CNetGui::CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const ch
 
 void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_CheckBoxNumber Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
@@ -448,6 +495,9 @@ void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, co
 
 void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_Scrollbar Msg;
 	Msg.m_ID = NetGuiElemID;
 
@@ -465,6 +515,9 @@ void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Ve
 
 void CNetGui::ScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	CNetMsg_Sv_NetGui_ScrollbarOption Msg;
 	Msg.m_ID = NetGuiElemID;
 	Msg.m_Text = pText;
@@ -483,6 +536,16 @@ void CNetGui::ScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, c
 	SendNetGui(ClientID, Msg);
 }
 
+void CNetGui::RequestData(int ClientID, int Type, int NetGuiElemID)
+{
+	if(!m_NetGuiClients[ClientID] && Type != 1883)
+		return;
+
+	CNetMsg_Sv_NetGui_RequestData Msg;
+		Msg.m_ID = NetGuiElemID;
+		Msg.m_Type = Type;
+		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+}
 
 template<class T>
 void CNetGui::SendNetGui(int ClientID, T Msg)
@@ -498,13 +561,5 @@ void CNetGui::SendNetGui(int ClientID, T Msg)
 		}
 	}
 	else
-		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-}
-
-void CNetGui::RequestData(int ClientID, int Type, int NetGuiElemID)
-{
-		CNetMsg_Sv_NetGui_RequestData Msg;
-		Msg.m_ID = NetGuiElemID;
-		Msg.m_Type = Type;
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }

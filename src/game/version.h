@@ -6,5 +6,7 @@
 #define GAME_VERSION "0.7 trunk"
 //#define GAME_NETVERSION "0.7 " GAME_NETVERSION_HASH
 #define GAME_NETVERSION "0.7 be5937118401c37c"
+#define GAME_NETGUI_NUMERICVERSION 151222
+#define GAME_BUILD_DATE __DATE__ ", " __TIME__
 static const char GAME_RELEASE_VERSION[8] = {'0', '.', '6', '1', 0};
 #endif
