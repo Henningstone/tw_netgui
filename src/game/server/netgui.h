@@ -12,6 +12,11 @@
 #include "player.h"
 
 #define GUISET(name) void CreateGui_##name(int ClientID); void RemoveGui_##name(int ClientID);
+#define GUIDEFINE(name, netmsgname, args...) \
+		public: \
+			void Do##name(int ClientID, int NetGuiElemID, vec4 Dimensions, args); \
+		private: \
+			array<CNetMsg_Sv_NetGui_##name> m_##name[MAX_CLIENTS]; public:
 
 class CNetGui
 {
@@ -25,31 +30,19 @@ class CNetGui
 public:
 	CNetGui(CGameContext *pGameServer) : m_pGameServer(pGameServer){}
 	void RemoveElement(int ClientID, int Type, int NetGuiElemID);
-	void UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding);
-	void Label(int ClientID, int NetGuiElemID, const char *pText, vec4 Dimensions, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth);
-	void ButtonMenu(int ClientID, int NetGuiElemID, const char *pText, int Checked, vec4 Dimensions);
-	void EditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password);
-	void CheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int Checked);
-	void CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue);
-	void Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical = false);
-	void ScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite);
 
 	void OnClientEnter(int ClientID);
 	void OnClientDrop(int ClientID); // nah
 	void OnMessage(int MsgID, void *pRawMsg, int ClientID);
 
+	// // auto-generated declarations of functions
+	#include <game/netguidefines.h>
+	#undef GUIDEFINE
+
 protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 
 private:
-	array<CNetMsg_Sv_NetGui_UIRect> m_UIRect[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_Label> m_Label[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_ButtonMenu> m_ButtonMenu[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_EditBox> m_EditBox[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_CheckBox> m_CheckBox[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_CheckBoxNumber[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_Scrollbar> m_Scrollbar[MAX_CLIENTS];
-	array<CNetMsg_Sv_NetGui_ScrollbarOption> m_ScrollbarOption[MAX_CLIENTS];
 
 	template<class T>
 	void SendNetGui(int ClientID, T Msg);

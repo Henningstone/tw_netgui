@@ -2,16 +2,47 @@
 
 #include "netgui.h"
 
+#define GUI_BUILDRESPONSE(name, type) \
+		int index = -1;\
+		for(int i = 0; i < m_NetGui##name.size(); i++)\
+		{\
+			if(m_NetGui##name[i].m_ID == pMsg->m_ID)\
+				index = i;\
+		}\
+		if(index < 0)\
+			break;\
+		CNetMsg_Cl_NetGui_Response##type Reply;\
+		Reply.m_ID = pMsg->m_ID;\
+		Reply.m_Type = pMsg->m_Type
+
+#define GUIRECEIVE_INIT(name) \
+		CNetMsg_Sv_NetGui_##name *pMsg = (CNetMsg_Sv_NetGui_##name *)pRawMsg;\
+		CNetMsg_Sv_NetGui_##name e;\
+		e.m_ID = pMsg->m_ID;\
+		e.m_Dimension[0] = pMsg->m_Dimension[0];\
+		e.m_Dimension[1] = pMsg->m_Dimension[1];\
+		e.m_Dimension[2] = pMsg->m_Dimension[2];\
+		e.m_Dimension[3] = pMsg->m_Dimension[3]
+
+#define GUIRECEIVE_FINALIZE(name) \
+		if(m_NetGui##name.size() > 1)\
+		{\
+			for(int i = 0; i < m_NetGui##name.size(); i++)\
+			{\
+				if(m_NetGui##name[i].m_ID == e.m_ID)\
+					m_NetGui##name.remove_index(i);\
+			}\
+		}\
+		m_NetGui##name.add(e);\
+		SortNetGuiList<CNetMsg_Sv_NetGui_##name>(m_NetGui##name)
+
 
 void CNetGui::OnReset()
 {
-	m_NetGuiUIRect.clear();
-	m_NetGuiLabel.clear();
-	m_NetGuiButtonMenu.clear();
-	m_NetGuiEditBox.clear();
-	m_NetGuiCheckBox.clear();
-	m_NetGuiScrollbar.clear();
-	m_NetGuiScrollbarOption.clear();
+	// auto-generated clear's
+	#define GUIDEFINE(name, netmsgname, args...) m_NetGui##name.clear();
+	#include <game/netguidefines.h>
+	#undef GUIDEFINE
 }
 
 void CNetGui::OnMessage(int MsgId, void *pRawMsg)
@@ -20,65 +51,21 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 	{
 		CNetMsg_Sv_NetGui_RemoveElement *pMsg = (CNetMsg_Sv_NetGui_RemoveElement *)pRawMsg;
 
+		// remove handler; the "args..." thingy is just for compatiblity and will be dropped
+		#define GUIDEFINE(name, netmsgname, args...) \
+			case NETMSGTYPE_SV_NETGUI_##netmsgname: \
+				for(int i = 0; i < m_NetGui##name.size(); i++) \
+				{ \
+					if(m_NetGui##name[i].m_ID == pMsg->m_ID) \
+						m_NetGui##name.remove_index(i); \
+				} \
+				break;
+
 		switch(pMsg->m_Type)
 		{
-		case NETMSGTYPE_SV_NETGUI_UIRECT:
-			for(int i = 0; i < m_NetGuiUIRect.size(); i++)
-			{
-				if(m_NetGuiUIRect[i].m_ID == pMsg->m_ID)
-					m_NetGuiUIRect.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_LABEL:
-			for(int i = 0; i < m_NetGuiLabel.size(); i++)
-			{
-
-				if(m_NetGuiLabel[i].m_ID == pMsg->m_ID)
-					m_NetGuiLabel.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_BUTTONMENU:
-			for(int i = 0; i < m_NetGuiButtonMenu.size(); i++)
-			{
-				if(m_NetGuiButtonMenu[i].m_ID == pMsg->m_ID)
-					m_NetGuiButtonMenu.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_EDITBOX:
-			for(int i = 0; i < m_NetGuiEditBox.size(); i++)
-			{
-				if(m_NetGuiEditBox[i].m_ID == pMsg->m_ID)
-					m_NetGuiEditBox.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_CHECKBOX:
-			for(int i = 0; i < m_NetGuiCheckBox.size(); i++)
-			{
-				if(m_NetGuiCheckBox[i].m_ID == pMsg->m_ID)
-					m_NetGuiCheckBox.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
-			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
-			{
-				if(m_NetGuiCheckBoxNumber[i].m_ID == pMsg->m_ID)
-					m_NetGuiCheckBoxNumber.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_SCROLLBAR:
-			for(int i = 0; i < m_NetGuiScrollbar.size(); i++)
-			{
-				if(m_NetGuiScrollbar[i].m_ID == pMsg->m_ID)
-					m_NetGuiScrollbar.remove_index(i);
-			}
-			break;
-		case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
-			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
-			{
-				if(m_NetGuiScrollbarOption[i].m_ID == pMsg->m_ID)
-					m_NetGuiScrollbarOption.remove_index(i);
-			}
-			break;
+			// auto-generated remove handlers
+			#include <game/netguidefines.h>
+			#undef GUIDEFINE
 		}
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTDATA)
@@ -88,92 +75,37 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		{
 		case NETMSGTYPE_SV_NETGUI_EDITBOX:
 		{
-			int index = -1;
-			for(int i = 0; i < m_NetGuiEditBox.size(); i++)
-			{
-				if(m_NetGuiEditBox[i].m_ID == pMsg->m_ID)
-					index = i;
-			}
-			if(index >= 0)
-			{
-				CNetMsg_Cl_NetGui_ResponseString Reply;
-				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Text = m_aNetGuiEditBoxContent[index];
-				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-			}
+			GUI_BUILDRESPONSE(EditBox, String);
+			Reply.m_Text = m_aNetGuiEditBoxContent[index];
+			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
 		case NETMSGTYPE_SV_NETGUI_CHECKBOX:
 		{
-			int index = -1;
-			for(int i = 0; i < m_NetGuiCheckBox.size(); i++)
-			{
-				if(m_NetGuiCheckBox[i].m_ID == pMsg->m_ID)
-					index = i;
-			}
-			if(index >= 0)
-			{
-				CNetMsg_Cl_NetGui_ResponseInt Reply;
-				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Value = m_NetGuiCheckBox[index].m_Checked;
-				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-			}
+			GUI_BUILDRESPONSE(CheckBox, Int);
+			Reply.m_Value = m_NetGuiCheckBox[index].m_Checked;
+			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
 		case NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER:
 		{
-			int index = -1;
-			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
-			{
-				if(m_NetGuiCheckBoxNumber[i].m_ID == pMsg->m_ID)
-					index = i;
-			}
-			if(index >= 0)
-			{
-				CNetMsg_Cl_NetGui_ResponseInt Reply;
-				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Value = m_NetGuiCheckBoxNumber[index].m_Value;
-				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-			}
+			GUI_BUILDRESPONSE(CheckBoxNumber, Int);
+			Reply.m_Value = m_NetGuiCheckBoxNumber[index].m_Value;
+			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
 		case NETMSGTYPE_SV_NETGUI_SCROLLBAR:
 		{
-			int index = -1;
-			for(int i = 0; i < m_NetGuiScrollbar.size(); i++)
-			{
-				if(m_NetGuiScrollbar[i].m_ID == pMsg->m_ID)
-					index = i;
-			}
-			if(index >= 0)
-			{
-				CNetMsg_Cl_NetGui_ResponseInt Reply;
-				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Value = m_NetGuiScrollbar[index].m_ValueX100;
-				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-			}
+			GUI_BUILDRESPONSE(Scrollbar, Int);
+			Reply.m_Value = m_NetGuiScrollbar[index].m_ValueX100;
+			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
 		case NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION:
 		{
-			int index = -1;
-			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
-			{
-				if(m_NetGuiScrollbarOption[i].m_ID == pMsg->m_ID)
-					index = i;
-			}
-			if(index >= 0)
-			{
-				CNetMsg_Cl_NetGui_ResponseInt Reply;
-				Reply.m_ID = pMsg->m_ID;
-				Reply.m_Type = pMsg->m_Type;
-				Reply.m_Value = m_NetGuiScrollbarOption[index].m_Value;
-				Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-			}
+			GUI_BUILDRESPONSE(ScrollbarOption, Int);
+			Reply.m_Value = m_NetGuiScrollbarOption[index].m_Value;
+			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
 
@@ -181,16 +113,8 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_UIRECT)
 	{
-		CNetMsg_Sv_NetGui_UIRect *pMsg = (CNetMsg_Sv_NetGui_UIRect *)pRawMsg;
+		GUIRECEIVE_INIT(UIRect);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_UIRect e;
-
-		e.m_ID = pMsg->m_ID;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 		e.m_Color[0] = pMsg->m_Color[0];
 		e.m_Color[1] = pMsg->m_Color[1];
 		e.m_Color[2] = pMsg->m_Color[2];
@@ -198,35 +122,15 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_Corner = pMsg->m_Corner;
 		e.m_RoundingX10 = pMsg->m_RoundingX10;
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiUIRect.size() > 1)
-		{
-			for(int i = 0; m_NetGuiUIRect.size(); i++)
-			{
-				if(m_NetGuiUIRect[i].m_ID == e.m_ID)
-					m_NetGuiUIRect.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiUIRect.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_UIRect>(m_NetGuiUIRect);
+		GUIRECEIVE_FINALIZE(UIRect);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_LABEL)
 	{
-		CNetMsg_Sv_NetGui_Label *pMsg = (CNetMsg_Sv_NetGui_Label *)pRawMsg;
+		GUIRECEIVE_INIT(Label);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_Label e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
 		e.m_Text = aBuf;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 		e.m_Color[0] = pMsg->m_Color[0];
 		e.m_Color[1] = pMsg->m_Color[1];
 		e.m_Color[2] = pMsg->m_Color[2];
@@ -234,123 +138,47 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_FontSize = pMsg->m_FontSize;
 		e.m_FontAlign = pMsg->m_FontAlign;
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiLabel.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiLabel.size(); i++)
-			{
-				if(m_NetGuiLabel[i].m_ID == e.m_ID)
-					m_NetGuiLabel.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiLabel.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_Label>(m_NetGuiLabel);
+		GUIRECEIVE_FINALIZE(Label);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_BUTTONMENU)
 	{
-		CNetMsg_Sv_NetGui_ButtonMenu *pMsg = (CNetMsg_Sv_NetGui_ButtonMenu *)pRawMsg;
+		GUIRECEIVE_INIT(ButtonMenu);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_ButtonMenu e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
 		e.m_Text = aBuf;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
-		e.m_Checked = pMsg->m_Checked;
+		e.m_Selected = pMsg->m_Selected;
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiButtonMenu.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiButtonMenu.size(); i++)
-			{
-				if(m_NetGuiButtonMenu[i].m_ID == e.m_ID)
-					m_NetGuiButtonMenu.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiButtonMenu.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_ButtonMenu>(m_NetGuiButtonMenu);
+		GUIRECEIVE_FINALIZE(ButtonMenu);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_EDITBOX)
 	{
-		CNetMsg_Sv_NetGui_EditBox *pMsg = (CNetMsg_Sv_NetGui_EditBox *)pRawMsg;
+		GUIRECEIVE_INIT(EditBox);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_EditBox e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Title);
 		e.m_Title = aBuf;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 		e.m_SplitValue = pMsg->m_SplitValue;
 		e.m_MaxTextWidth = pMsg->m_MaxTextWidth;
 		e.m_Password = pMsg->m_Password;
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiEditBox.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiEditBox.size(); i++)
-			{
-				if(m_NetGuiEditBox[i].m_ID == e.m_ID)
-					m_NetGuiEditBox.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiEditBox.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_EditBox>(m_NetGuiEditBox);
+		GUIRECEIVE_FINALIZE(EditBox);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_CHECKBOX)
 	{
-		CNetMsg_Sv_NetGui_CheckBox *pMsg = (CNetMsg_Sv_NetGui_CheckBox *)pRawMsg;
+		GUIRECEIVE_INIT(CheckBox);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_CheckBox e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
 		e.m_Text = aBuf;
 		e.m_Checked = pMsg->m_Checked;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiCheckBox.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiCheckBox.size(); i++)
-			{
-				if(m_NetGuiCheckBox[i].m_ID == e.m_ID)
-					m_NetGuiCheckBox.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiCheckBox.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_CheckBox>(m_NetGuiCheckBox);
+		GUIRECEIVE_FINALIZE(CheckBox);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER)
 	{
-		CNetMsg_Sv_NetGui_CheckBoxNumber *pMsg = (CNetMsg_Sv_NetGui_CheckBoxNumber *)pRawMsg;
+		GUIRECEIVE_INIT(CheckBoxNumber);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_CheckBoxNumber e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
 		e.m_Text = aBuf;
@@ -358,60 +186,18 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_MinValue = pMsg->m_MinValue;
 		e.m_MaxValue = pMsg->m_MaxValue;
 		e.m_StepValue = pMsg->m_StepValue;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiCheckBoxNumber.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiCheckBoxNumber.size(); i++)
-			{
-				if(m_NetGuiCheckBoxNumber[i].m_ID == e.m_ID)
-					m_NetGuiCheckBoxNumber.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiCheckBoxNumber.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_CheckBoxNumber>(m_NetGuiCheckBoxNumber);
+		GUIRECEIVE_FINALIZE(CheckBoxNumber);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_SCROLLBAR)
 	{
-		CNetMsg_Sv_NetGui_Scrollbar *pMsg = (CNetMsg_Sv_NetGui_Scrollbar *)pRawMsg;
-
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_Scrollbar e;
-
-		e.m_ID = pMsg->m_ID;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
-
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiScrollbar.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiScrollbar.size(); i++)
-			{
-				if(m_NetGuiScrollbar[i].m_ID == e.m_ID)
-					m_NetGuiScrollbar.remove_index(i);
-			}
-		}
-
-		// save the element and resort the list
-		m_NetGuiScrollbar.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_Scrollbar>(m_NetGuiScrollbar);
+		GUIRECEIVE_INIT(Scrollbar);
+		GUIRECEIVE_FINALIZE(Scrollbar);
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION)
 	{
-		CNetMsg_Sv_NetGui_ScrollbarOption *pMsg = (CNetMsg_Sv_NetGui_ScrollbarOption *)pRawMsg;
+		GUIRECEIVE_INIT(ScrollbarOption);
 
-		// setup a new element for our list
-		CNetMsg_Sv_NetGui_ScrollbarOption e;
-
-		e.m_ID = pMsg->m_ID;
 		char* aBuf = (char*)mem_alloc(512, 0);
 		str_format(aBuf, 512, "%s", pMsg->m_Text);
 		e.m_Text = aBuf;
@@ -419,23 +205,20 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_MinValue = pMsg->m_MinValue;
 		e.m_MaxValue = pMsg->m_MaxValue;
 		e.m_VSplitValX10 = pMsg->m_VSplitValX10;
-		e.m_Dimension[0] = pMsg->m_Dimension[0];
-		e.m_Dimension[1] = pMsg->m_Dimension[1];
-		e.m_Dimension[2] = pMsg->m_Dimension[2];
-		e.m_Dimension[3] = pMsg->m_Dimension[3];
 
-		// check for duplicated IDs and overwrite them
-		if(m_NetGuiScrollbarOption.size() > 1)
-		{
-			for(int i = 0; i < m_NetGuiScrollbarOption.size(); i++)
-			{
-				if(m_NetGuiScrollbarOption[i].m_ID == e.m_ID)
-					m_NetGuiScrollbarOption.remove_index(i);
-			}
-		}
+		GUIRECEIVE_FINALIZE(ScrollbarOption);
+	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_INFOBOX)
+	{
+		GUIRECEIVE_INIT(InfoBox);
 
-		// save the element and resort the list
-		m_NetGuiScrollbarOption.add(e);
-		SortNetGuiList<CNetMsg_Sv_NetGui_ScrollbarOption>(m_NetGuiScrollbarOption);
+		char* aBufLabel = (char*)mem_alloc(512, 0);
+		str_format(aBufLabel, 512, "%s", pMsg->m_Label);
+		e.m_Label = aBufLabel;
+		char* aBufValue = (char*)mem_alloc(512, 0);
+		str_format(aBufValue, 512, "%s", pMsg->m_Value);
+		e.m_Value = aBufValue;
+
+		GUIRECEIVE_FINALIZE(InfoBox);
 	}
 }

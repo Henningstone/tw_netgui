@@ -12,15 +12,13 @@ class CNetGui : public CComponent
 	virtual void OnMessage(int MsgId, void *pRawMsg);
 
 public:
-	array<CNetMsg_Sv_NetGui_UIRect> m_NetGuiUIRect;
-	array<CNetMsg_Sv_NetGui_Label> m_NetGuiLabel;
-	array<CNetMsg_Sv_NetGui_ButtonMenu> m_NetGuiButtonMenu;
-	array<CNetMsg_Sv_NetGui_EditBox> m_NetGuiEditBox;
-	array<CNetMsg_Sv_NetGui_CheckBox> m_NetGuiCheckBox;
-	array<CNetMsg_Sv_NetGui_CheckBoxNumber> m_NetGuiCheckBoxNumber;
-	array<CNetMsg_Sv_NetGui_Scrollbar> m_NetGuiScrollbar;
-	array<CNetMsg_Sv_NetGui_ScrollbarOption> m_NetGuiScrollbarOption;
+	// automatically make a storage array for everything
+	#define GUIDEFINE(name, netmsgname, args...) array<CNetMsg_Sv_NetGui_##name> m_NetGui##name;
+	#include <game/netguidefines.h>
+	#undef GUIDEFINE
+
 	char m_aNetGuiEditBoxContent[1024][1024]; // necessary because it cannot be stored into the NetMsg (CONST char...)
+
 
 	// maxsort to get stuff into correct render order.
 	template<class T>

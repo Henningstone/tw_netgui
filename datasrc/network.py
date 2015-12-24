@@ -385,7 +385,10 @@ Messages = [
 		NetBool("m_Force"),
 	]),
 
-	## NetGUI
+
+	### NetGUI messages
+	
+	## Server
 	NetMessage("Sv_NetGui_RemoveElement", [
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),
@@ -417,7 +420,7 @@ Messages = [
 	NetMessage("Sv_NetGui_ButtonMenu", [
 		NetIntAny("m_ID"),
 		NetString("m_Text"),
-		NetIntRange("m_Checked", 0, 1),
+		NetIntRange("m_Selected", 0, 1),
 		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
 	##	NetArray(NetIntRange("m_Color", 0, 100), 4),
 	]),	
@@ -469,7 +472,16 @@ Messages = [
 		NetIntAny("m_MaxValue"),
 		NetIntRange("m_Infinite", 0, 1),
 	]),
-
+	
+	NetMessage("Sv_NetGui_InfoBox", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Label"),
+		NetString("m_Value"),
+	]),
+	
+	
+	## Client
 	NetMessage("Cl_NetGui_TriggerEvent", [ 
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),

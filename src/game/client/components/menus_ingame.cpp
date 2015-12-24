@@ -464,70 +464,55 @@ void CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 }
 
 // TODO: NetGui
+#define GUIPREPARE(name) \
+		for(int i = 0; i < m_pClient->m_pNetGui->m_NetGui##name.size(); i++)\
+		{\
+			if(i >= 1024) break;\
+			CUIRect Rect;\
+			CNetMsg_Sv_NetGui_##name *e = &m_pClient->m_pNetGui->m_NetGui##name[i];\
+			float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;\
+			float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;\
+			float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;\
+			float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;\
+			Rect.x = xa;\
+			Rect.y = ya;\
+			Rect.w = xb - xa;\
+			Rect.h = yb - ya;
+
 void CMenus::RenderNetGui(CUIRect MainView)
 {
 	// UIRect
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiUIRect.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_UIRect e = m_pClient->m_pNetGui->m_NetGuiUIRect[i];
-
-		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(UIRect)
 		vec4 Color = vec4(
-				e.m_Color[0]/100.0f,
-				e.m_Color[1]/100.0f,
-				e.m_Color[2]/100.0f,
-				e.m_Color[3]/100.0f);
-		RenderTools()->DrawUIRect(&Rect, Color, e.m_Corner, e.m_RoundingX10/10.0f);
+				e->m_Color[0]/100.0f,
+				e->m_Color[1]/100.0f,
+				e->m_Color[2]/100.0f,
+				e->m_Color[3]/100.0f);
+		RenderTools()->DrawUIRect(&Rect, Color, e->m_Corner, e->m_RoundingX10/10.0f);
 	}
 
+
 	// Label
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiLabel.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_Label e = m_pClient->m_pNetGui->m_NetGuiLabel[i];
-
-		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
-		switch(e.m_FontAlign)
+	GUIPREPARE(Label)
+		switch(e->m_FontAlign)
 		{
 		case 1: // center
-			Rect.x += (Rect.w - TextRender()->TextWidth(0, e.m_FontSize, e.m_Text, -1))/2;
+			Rect.x += (Rect.w - TextRender()->TextWidth(0, e->m_FontSize, e->m_Text, -1))/2;
 			break;
 		case 2: // right
-			Rect.x += Rect.w - TextRender()->TextWidth(0, e.m_FontSize, e.m_Text, -1);
+			Rect.x += Rect.w - TextRender()->TextWidth(0, e->m_FontSize, e->m_Text, -1);
 			break;
 		default: // anything but 1 and 2 will result in left-aligned
 			break;
 		}
-
 		TextRender()->TextColor(
-				e.m_Color[0]/100.0f,
-				e.m_Color[1]/100.0f,
-				e.m_Color[2]/100.0f,
-				e.m_Color[3]/100.0f);
+				e->m_Color[0]/100.0f,
+				e->m_Color[1]/100.0f,
+				e->m_Color[2]/100.0f,
+				e->m_Color[3]/100.0f);
 
-		// i'd prefer to use the second one, but it makes the game hung ô.ô
-		TextRender()->Text(0, Rect.x, Rect.y, e.m_FontSize, e.m_Text, e.m_MaxTextWidth*(int)MainView.w);
+		// (i'd prefer to use the second one, but it makes the game hung ô.ô) - The first one turned out to be also nice...
+		TextRender()->Text(0, Rect.x, Rect.y, e->m_FontSize, e->m_Text, e->m_MaxTextWidth*(int)MainView.w);
 		/*UI()->DoLabel(&Rect,
 				e.m_Text,
 				e.m_FontSize,
@@ -536,91 +521,35 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	}
 	TextRender()->TextColor(1,1,1,1);
 
+
 	// ButtonMenu
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiButtonMenu.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_ButtonMenu e = m_pClient->m_pNetGui->m_NetGuiButtonMenu[i];
-
-		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(ButtonMenu)
 		static int s_ID[1024] = {0}; // nobody will create so much buttons :p
-		if(DoButton_Menu(&s_ID[i], e.m_Text, e.m_Checked, &Rect))
-			m_pClient->m_pNetGui->SendEvent(NETMSGTYPE_SV_NETGUI_BUTTONMENU, e.m_ID);
+		if(DoButton_Menu(&s_ID[i], e->m_Text, e->m_Selected, &Rect))
+			m_pClient->m_pNetGui->SendEvent(NETMSGTYPE_SV_NETGUI_BUTTONMENU, e->m_ID);
 	}
 
+
 	// EditBox
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiEditBox.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_EditBox e = m_pClient->m_pNetGui->m_NetGuiEditBox[i];
-
-		float xa = MainView.x + ((float)e.m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e.m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e.m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e.m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(EditBox)
 		static char aText[1024][1024];
 		static float s_Offset[1024] = {0};
 		static int s_ID[1024] ={0};
-		DoEditBoxOption((void *)&s_ID[i], aText[i], e.m_MaxTextWidth, &Rect, e.m_Title, ((float)e.m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e.m_Password == 1 ? true : false);
+		DoEditBoxOption((void *)&s_ID[i], aText[i], e->m_MaxTextWidth, &Rect, e->m_Title, ((float)e->m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e->m_Password == 1 ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
 	}
 
+
 	// CheckBox
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiCheckBox.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_CheckBox *e = &m_pClient->m_pNetGui->m_NetGuiCheckBox[i];
-
-		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(CheckBox)
 		static int s_ID[1024] = {0};
 		if(DoButton_CheckBox(&s_ID[i], e->m_Text, e->m_Checked, &Rect))
 			e->m_Checked ^= 1;
 	}
 
+
 	// CheckBoxNumber
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiCheckBoxNumber.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_CheckBoxNumber *e = &m_pClient->m_pNetGui->m_NetGuiCheckBoxNumber[i];
-
-		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(CheckBoxNumber)
 		static int s_ID[1024] = {0};
 		int MouseButton = DoButton_CheckBox_Number(&s_ID[i], e->m_Text, e->m_Value, &Rect);
 		if(MouseButton == 1) // primary click
@@ -646,23 +575,9 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		}
 	}
 
+
 	// Scrollbar
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiScrollbar.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_Scrollbar *e = &m_pClient->m_pNetGui->m_NetGuiScrollbar[i];
-
-		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(Scrollbar)
 		static int s_ID[1024] = {0};
 		static float s_Value[1024] = {0.0f};
 		if(e->m_Vertical)
@@ -673,27 +588,19 @@ void CMenus::RenderNetGui(CUIRect MainView)
 		e->m_ValueX100 = (int)(s_Value[i] * 100.0f);
 	}
 
+
 	// ScrollbarOption
-	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiScrollbarOption.size(); i++)
-	{
-		if(i >= 1024) break;
-
-		CUIRect Rect;
-		CNetMsg_Sv_NetGui_ScrollbarOption *e = &m_pClient->m_pNetGui->m_NetGuiScrollbarOption[i];
-
-		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
-		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
-		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
-		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
-		Rect.x = xa;
-		Rect.y = ya;
-		Rect.w = xb - xa;
-		Rect.h = yb - ya;
-
+	GUIPREPARE(ScrollbarOption)
 		static int s_ID[1024] = {0};
 		static int s_Value[1024] = {0};
 		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1 ? true : false);
 		e->m_Value = s_Value[i];
+	}
+
+
+	// InfoBox
+	GUIPREPARE(InfoBox)
+		DoInfoBox(&Rect, e->m_Label, e->m_Value);
 	}
 }
 
