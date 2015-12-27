@@ -480,8 +480,38 @@ Messages = [
 		NetString("m_Value"),
 	]),
 	
+	NetMessage("Sv_NetGui_ListboxHeader", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Title"),
+		NetIntAny("m_HeightX10"),
+		NetIntAny("m_SpacingX10"),
+	]),
 	
-	## Client
+	NetMessage("Sv_NetGui_ListboxStart", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_BottomText"),
+		NetIntAny("m_RowHeightX10"),
+		NetIntAny("m_ItemsPerRow"),
+		NetIntAny("m_SelectedIndex"),
+		NetIntAny("m_HeaderID"),
+		NetIntRange("m_Background", 0, 1),
+	]),
+	
+	NetMessage("Sv_NetGui_ListboxItemAdd", [
+		NetIntRange("m_ListboxID", 0, 1024),
+		NetIntAny("m_ID"),
+		NetString("m_Text"),
+	]),
+	
+	NetMessage("Sv_NetGui_ListboxItemRemove", [
+		NetIntRange("m_ListboxID", 0, 1024),
+		NetIntAny("m_ID"),
+	]),
+	
+	
+	## NetGui - Client
 	NetMessage("Cl_NetGui_TriggerEvent", [ 
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),

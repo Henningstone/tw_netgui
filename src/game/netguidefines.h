@@ -13,6 +13,8 @@ GUIDEFINE(CheckBoxNumber, CHECKBOXNUMBER, const char *pText, int MinValue, int M
 GUIDEFINE(Scrollbar, SCROLLBAR, bool Vertical = false);
 GUIDEFINE(ScrollbarOption, SCROLLBAROPTION, const char *pText, float VSplitVal, int Min, int Max, bool Infinite);
 GUIDEFINE(InfoBox, INFOBOX, const char *pLabel, const char* pValue);
+GUIDEFINE(ListboxHeader, LISTBOXHEADER, const char *pTitle, float Height, float Spacing);
+GUIDEFINE(ListboxStart, LISTBOXSTART, const char *pBottomText, float RowHeight, int ItemsPerRow, int SelectedIndex, int HeaderID=-1, bool Background=true);
 #endif
 
 #endif

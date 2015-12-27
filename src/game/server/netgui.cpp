@@ -6,47 +6,111 @@
 
 #include "netgui.h"
 
-#define PREBUILD(msgtype) \
-		CNetMsg_Sv_NetGui_##msgtype Msg;	\
+#define BUILD_INIT(name) \
+		CNetMsg_Sv_NetGui_##name Msg;	\
 		Msg.m_ID = NetGuiElemID;			\
 		Msg.m_Dimension[0] = Dimensions.x;	\
 		Msg.m_Dimension[1] = Dimensions.y;	\
 		Msg.m_Dimension[2] = Dimensions.a;	\
 		Msg.m_Dimension[3] = Dimensions.b
 
+#define BUILD_FINALIZE(name) \
+	if(m_##name[ClientID].size() > 1)\
+	{\
+		for(int i = 0; i < m_##name[ClientID].size(); i++)\
+		{\
+			if(m_##name[ClientID][i].m_ID == NetGuiElemID)\
+				m_##name[ClientID].remove_index(i);\
+		}\
+	}\
+	m_##name[ClientID].add(Msg);\
+	SendNetGui(ClientID, Msg)
+
+#define GUI_INIT() m_ActiveGuis ^= GuiID
+#define GET_EID(gid, eid) ((eid+1) << ((gid) * 5))
+
 
 // ----------------------------- [start of GUI managing methods] -----------------------------
-void CNetGui::CreateGui_ExampleClosed(int ClientID)
+void CNetGui::CreateGui_ExampleClosed(int ClientID, int GuiID)
 {
-	DoButtonMenu(ClientID, 1, vec4(45-10, 45+10, 50-5, 50+5), "Open", 0);
+	GUI_INIT();
+
+	DoButtonMenu(ClientID, 1, vec4(100-25-5-20, 100-5-5-20, 100-5-10, 100-5), "Open", 0);
 }
-void CNetGui::RemoveGui_ExampleClosed(int ClientID)
+void CNetGui::RemoveGui_ExampleClosed(int ClientID, int GuiID)
 {
+	GUI_INIT();
+
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 1);
 }
 
-void CNetGui::CreateGui_Example1(int ClientID)
+void CNetGui::CreateGui_Example1(int ClientID, int GuiID)
 {
+	GUI_INIT();
+
+	// main rect
 	DoUIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(30, 70, 38, 70), 15, 5.0f);
+
+	// labels
 	DoLabel(ClientID, 0, vec4(0, 100, 0, 10), ">)^_^)> Welcome to this NetGUI server! :)", vec4(80, 0, 0, 90), 20, 1, 100-0);
 	DoLabel(ClientID, 1, vec4(0, 100, 10, 20), "(: Click the button! <(^_^(<", vec4(80, 0, 50, 80), 20, 1, 100-0);
 	DoLabel(ClientID, 2, vec4(1, 100, 96, 99), "NetGUI mod (c) 2015 by Henritees :P", vec4(100, 20, 20, 70), 10, 0, 100-1);
-	DoButtonMenu(ClientID, 0, vec4(45-10, 45+10, 50-5, 50+5), "Close", 0);
+
+	// buttons at the bottom (button IDs must begin with 1, not with 0!)
+	DoButtonMenu(ClientID, 0, vec4(100-25-5-20, 100-5-5-20, 100-5-10, 100-5), "Close", 0);
 	DoButtonMenu(ClientID, 2, vec4(100-5-20, 100-5, 100-5-10, 100-5), "Page 2 →", 0);
+
+	// listbox 1
+	DoListboxHeader(ClientID, 0, vec4(20, 50-2, 17, 60), "Testing Listbox with Header ;)", 20.0f, 2.0f);
+	// add some useless test items to the list :D
+	// IMPROTANT: add the items before doing "ListboxStart"!!
+	for(int i = 0; i < 20; i++)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "Item %i", i+1);
+		ListboxItemAdd(ClientID, 0, i, aBuf);
+	}
+	DoListboxStart(ClientID, 0, vec4(0,0,0,0) /*overridden*/, 0, 20.0f, 1, 2, 0, true);
+	DoButtonMenu(ClientID, 12, vec4(50, 60, 20, 30), "»»", 0);
+
+	//DoButtonMenu(ClientID, 14, vec4(50, 60, 30+2, 40+2), "«–»", 0);
+
+	// listbox 2
+	DoListboxHeader(ClientID, 1, vec4(60+2, 90, 17, 60), "Listbox 2...", 20.0f, 2.0f);
+	for(int i = 20; i >= 0; i--)
+	{
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "%i metI", i+1);
+		ListboxItemAdd(ClientID, 1, i, aBuf);
+	}
+	DoListboxStart(ClientID, 1, vec4(40+2, 60+2, 20, 60), 0, 20.0f, 1, 2, 1, true);
+	DoButtonMenu(ClientID, 13, vec4(50, 60, 40+2+2, 50+2+2), "««", 0);
+
 }
-void CNetGui::RemoveGui_Example1(int ClientID)
+void CNetGui::RemoveGui_Example1(int ClientID, int GuiID)
 {
+	GUI_INIT();
+
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 2);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 12);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 13);
+	//RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 14);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXHEADER, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXHEADER, 1);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 0);
+	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 1);
 }
 
-void CNetGui::CreateGui_Example2(int ClientID)
+void CNetGui::CreateGui_Example2(int ClientID, int GuiID)
 {
-	DoUIRect(ClientID, 1, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 5.0f);
+	GUI_INIT();
+
+	DoUIRect(ClientID, 0, vec4(0, 100, 0, 100), vec4(70, 30, 38, 70), 15, 5.0f);
 	DoLabel(ClientID, 0, vec4(0, 100, 0, 10), ">)^_^)> Welcome to Page 2! :)", vec4(80, 0, 0, 90), 20, 1, 100-0);
 	DoLabel(ClientID, 1, vec4(0, 100, 10, 20), "(: Congraz for clicking! <(^_^(<", vec4(50, 0, 80, 80), 20, 1, 100-0);
 	DoLabel(ClientID, 2, vec4(1, 100, 96, 99), "NetGUI mod (c) 2015 by Henritees :P", vec4(100, 20, 20, 70), 10, 0, 100-1);
@@ -85,8 +149,10 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	DoButtonMenu(ClientID, 11, vec4(90, 95, 50+5, 60+5), "»", 0);
 
 }
-void CNetGui::RemoveGui_Example2(int ClientID)
+void CNetGui::RemoveGui_Example2(int ClientID, int GuiID)
 {
+	GUI_INIT();
+
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 1);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 2);
 	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
@@ -131,6 +197,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
 }
+
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 {
@@ -197,6 +264,16 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 				case 11: // (vertical) scrollbar
 					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
 					break;
+				case 12: // listbox1 -> listbox2
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 0);
+					break;
+				case 13: // listbox2 -> listbox1
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 1);
+					break;
+			/*	case 14: // listbox1 <-> listbox2
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 0);
+					RequestData(ClientID, NETMSGTYPE_SV_NETGUI_LISTBOXSTART, 1);
+					break;*/
 				}
 			}
 			break;
@@ -269,7 +346,11 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 			GameServer()->SendChatTarget(-1, aBuf);
 		}
 		break;
-
+		case NETMSGTYPE_SV_NETGUI_LISTBOXSTART:
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "'%s' selected item no %i from listbox ID:%d. It's text is '%s'", GameServer()->Server()->ClientName(ClientID), pMsg->m_Value, pMsg->m_ID, ListboxItemGetText(ClientID, pMsg->m_ID, pMsg->m_Value));
+			GameServer()->SendChatTarget(-1, aBuf);
+			ListboxItemAdd(ClientID, 1-pMsg->m_ID, ListboxItemsNum(ClientID, 1-pMsg->m_ID), ListboxItemGetText(ClientID, pMsg->m_ID, pMsg->m_Value));
 		}
 	}
 }
@@ -304,7 +385,8 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 
 void CNetGui::DoUIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding)
 {
-	PREBUILD(UIRect);
+	BUILD_INIT(UIRect);
+
 	Msg.m_Color[0] = Color.r;
 	Msg.m_Color[1] = Color.g;
 	Msg.m_Color[2] = Color.b;
@@ -312,14 +394,13 @@ void CNetGui::DoUIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Col
 	Msg.m_Corner = Corner;
 	Msg.m_RoundingX10 = (int)(Rounding*10.0f);
 
-	m_UIRect[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(UIRect);
 }
 
 void CNetGui::DoLabel(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth)
 {
-	PREBUILD(Label);
+	BUILD_INIT(Label);
+
 	Msg.m_Text = pText;
 	Msg.m_Color[0] = Color.r;
 	Msg.m_Color[1] = Color.g;
@@ -329,93 +410,142 @@ void CNetGui::DoLabel(int ClientID, int NetGuiElemID, vec4 Dimensions, const cha
 	Msg.m_FontAlign = FontAlign;
 	Msg.m_MaxTextWidth = MaxTextWidth;
 
-	m_Label[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(Label);
 }
 
 void CNetGui::DoButtonMenu(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, bool Selected)
 {
-	PREBUILD(ButtonMenu);
+	BUILD_INIT(ButtonMenu);
+
 	Msg.m_Text = pText;
 	Msg.m_Selected = Selected ? 1 : 0;
 
-	m_ButtonMenu[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(ButtonMenu);
 }
 
 void CNetGui::DoEditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password)
 {
-	PREBUILD(EditBox);
+	BUILD_INIT(EditBox);
+
 	Msg.m_Title = pTitle;
 	Msg.m_SplitValue = SplitValue;
 	Msg.m_MaxTextWidth = MaxTextWidth;
 	Msg.m_Password = Password ? 1 : 0;
 
-	m_EditBox[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(EditBox);
 }
 
 void CNetGui::DoCheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, bool Checked)
 {
-	PREBUILD(CheckBox);
+	BUILD_INIT(CheckBox);
+
 	Msg.m_Text = pText;
 	Msg.m_Checked = Checked ? 1 : 0;
 
-	m_CheckBox[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(CheckBox);
 }
 
 void CNetGui::DoCheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue)
 {
-	PREBUILD(CheckBoxNumber);
+	BUILD_INIT(CheckBoxNumber);
+
 	Msg.m_Text = pText;
 	Msg.m_Value = MinValue;
 	Msg.m_MinValue = MinValue;
 	Msg.m_MaxValue = MaxValue;
 	Msg.m_StepValue = StepValue;
 
-	m_CheckBoxNumber[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(CheckBoxNumber);
 }
 
 void CNetGui::DoScrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical)
 {
-	PREBUILD(Scrollbar);
+	BUILD_INIT(Scrollbar);
+
 	Msg.m_Vertical = Vertical ? 1 : 0;
 
-	m_Scrollbar[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(Scrollbar);
 }
 
 void CNetGui::DoScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
 {
-	PREBUILD(ScrollbarOption);
+	BUILD_INIT(ScrollbarOption);
+
 	Msg.m_Text = pText;
 	Msg.m_VSplitValX10 = (int)(VSplitVal*10.0f);
 	Msg.m_MinValue = Min;
 	Msg.m_MaxValue = Max;
 	Msg.m_Infinite = Infinite ? 1 : 0;
 
-	m_ScrollbarOption[ClientID].add(Msg);
-
-	SendNetGui(ClientID, Msg);
+	BUILD_FINALIZE(ScrollbarOption);
 }
 
 void CNetGui::DoInfoBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pLabel, const char* pValue)
 {
-	PREBUILD(InfoBox);
+	BUILD_INIT(InfoBox);
+
 	Msg.m_Label = pLabel;
 	Msg.m_Value = pValue;
 
-	m_InfoBox[ClientID].add(Msg);
+	BUILD_FINALIZE(InfoBox);
+}
 
+void CNetGui::DoListboxHeader(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, float Height, float Spacing)
+{
+	BUILD_INIT(ListboxHeader);
+
+	Msg.m_Title = pTitle;
+	Msg.m_HeightX10 = (int)(Height * 10);
+	Msg.m_SpacingX10 = (int)(Spacing * 10);
+
+	BUILD_FINALIZE(ListboxHeader);
+}
+
+void CNetGui::DoListboxStart(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pBottomText, float RowHeight, int ItemsPerRow, int SelectedIndex, int HeaderID, bool Background)
+{
+	BUILD_INIT(ListboxStart);
+	Msg.m_BottomText = pBottomText ? pBottomText : " ";
+	Msg.m_RowHeightX10 = (int)(RowHeight * 10);
+	Msg.m_ItemsPerRow = ItemsPerRow;
+	Msg.m_SelectedIndex = SelectedIndex;
+	Msg.m_HeaderID = HeaderID;
+	Msg.m_Background = Background ? 1 : 0;
+
+	BUILD_FINALIZE(ListboxStart);
+}
+
+// not a gui element
+void CNetGui::ListboxItemAdd(int ClientID, int ListboxStartID, int ItemID, const char *pText)
+{
+	CNetMsg_Sv_NetGui_ListboxItemAdd Msg;
+	Msg.m_ID = ItemID;
+	Msg.m_ListboxID = ListboxStartID;
+	Msg.m_Text = pText;
 	SendNetGui(ClientID, Msg);
+
+	char *pNewText = (char *)mem_alloc(sizeof(pText), 0);
+	str_copy(pNewText, pText, sizeof(pNewText));
+
+	CNetGuiListboxItem Item(ListboxStartID, ItemID, pNewText);
+	m_ListboxItems[ClientID][ListboxStartID].add(Item);
+
+}
+
+// not a gui element
+void CNetGui::ListboxItemRemove(int ClientID, int ListboxID, int ItemID)
+{
+	CNetMsg_Sv_NetGui_ListboxItemRemove Msg;
+	Msg.m_ID = ItemID;
+	Msg.m_ListboxID = ListboxID;
+	SendNetGui(ClientID, Msg);
+
+	// go though all elements and find the one to remove
+	sorted_array<CNetGuiListboxItem> *pItems = &m_ListboxItems[ClientID][ListboxID];
+	for(int i = 0; i < pItems->size(); i++)
+	{
+		if((*pItems)[i].m_ID == ItemID)
+			pItems->remove_index(i);
+	}
 }
 
 

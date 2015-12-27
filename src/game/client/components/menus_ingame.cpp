@@ -488,7 +488,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e->m_Color[1]/100.0f,
 				e->m_Color[2]/100.0f,
 				e->m_Color[3]/100.0f);
-		RenderTools()->DrawUIRect(&Rect, Color, e->m_Corner, e->m_RoundingX10/10.0f);
+		RenderTools()->DrawUIRect(&Rect, Color, e->m_Corner, (int)e->m_RoundingX10/10.0f);
 	}
 
 
@@ -593,7 +593,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	GUIPREPARE(ScrollbarOption)
 		static int s_ID[1024] = {0};
 		static int s_Value[1024] = {0};
-		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1 ? true : false);
+		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1);
 		e->m_Value = s_Value[i];
 	}
 
@@ -601,6 +601,83 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// InfoBox
 	GUIPREPARE(InfoBox)
 		DoInfoBox(&Rect, e->m_Label, e->m_Value);
+	}
+
+	// ListBoxHeader
+	{
+		// nothing in here, because headers are applied to listboxes directly (can't/don't want to render them alone)
+	}
+
+	// ListboxStart (handling ListBoxHeader)
+	GUIPREPARE(ListboxStart)
+		static int s_ID[1024] = {0};
+		static float s_ScrollValue[1024] = {0.0f};
+		sorted_array<CNetGui::CNetGuiListboxItem> *pItems = &m_pClient->m_pNetGui->m_NetGuiListBoxItems[e->m_ID];
+
+		// find the header to be used for this listbox
+		CNetMsg_Sv_NetGui_ListboxHeader *pHeader = 0;
+		if(e->m_HeaderID >= 0)
+		{
+			for(int j = 0; j < m_pClient->m_pNetGui->m_NetGuiListboxHeader.size(); j++)
+			{
+				if(m_pClient->m_pNetGui->m_NetGuiListboxHeader[j].m_ID == e->m_HeaderID)
+				{
+					pHeader = &m_pClient->m_pNetGui->m_NetGuiListboxHeader[j];
+					break;
+				}
+			}
+
+			// do the header if we have one
+			if(pHeader)
+			{
+				float hxa = MainView.x + ((float)pHeader->m_Dimension[0]/100.0f) * MainView.w;
+				float hxb = MainView.x + ((float)pHeader->m_Dimension[1]/100.0f) * MainView.w;
+				float hyb = MainView.y + ((float)pHeader->m_Dimension[2]/100.0f) * MainView.h;
+				float hya = MainView.y + ((float)pHeader->m_Dimension[3]/100.0f) * MainView.h;
+
+				// overwrite the existing Rect
+				Rect.x = hxa;
+				Rect.y = hya;
+				Rect.w = hxb - hxa;
+				Rect.h = hyb - hya;
+
+				UiDoListboxHeader(&Rect, pHeader->m_Title, (float)pHeader->m_HeightX10 / 10.0f, (float)pHeader->m_SpacingX10 / 10.0f);
+			}
+		}
+
+		// make sure the selected index is in bounds
+		e->m_SelectedIndex = clamp(e->m_SelectedIndex, 0, pItems->size()-1);
+
+		// do the listbox start after it's header
+		UiDoListboxStart((const void *)&s_ID[i], (float)e->m_RowHeightX10 / 10.0f, e->m_BottomText != " " ? e->m_BottomText : 0, pItems->size(), e->m_ItemsPerRow, e->m_SelectedIndex,
+				s_ScrollValue[i], pHeader ? 0 : &Rect, e->m_Background == 1);
+
+		// do the elements of the listbox
+		for(sorted_array<CNetGui::CNetGuiListboxItem>::range r = pItems->all(); !r.empty(); r.pop_front())
+		{
+			CListboxItem Item = UiDoListboxNextItem(&r.front());
+
+			if(Item.m_Visible)
+			{
+				CUIRect Rect;
+				Item.m_Rect.VSplitLeft(Item.m_Rect.h*2.0f, &Rect, &Item.m_Rect);
+				Rect.VMargin(6.0f, &Rect);
+				Rect.HMargin(3.0f, &Rect);
+				vec4 Color(1.0f, 1.0f, 1.0f, 1.0f);
+				Item.m_Rect.y += 2.0f;
+				if(!str_comp((*pItems)[e->m_SelectedIndex].m_pText, r.front().m_pText))
+				{
+					TextRender()->TextColor(0.0f, 0.0f, 0.0f, 1.0f);
+					TextRender()->TextOutlineColor(1.0f, 1.0f, 1.0f, 0.25f);
+					UI()->DoLabelScaled(&Item.m_Rect, r.front().m_pText, Item.m_Rect.h*ms_FontmodHeight*0.8f, CUI::ALIGN_LEFT);
+					TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+					TextRender()->TextOutlineColor(0.0f, 0.0f, 0.0f, 0.3f);
+				}
+				else
+					UI()->DoLabelScaled(&Item.m_Rect, r.front().m_pText, Item.m_Rect.h*ms_FontmodHeight*0.8f, CUI::ALIGN_LEFT);
+			}
+		}
+		e->m_SelectedIndex = UiDoListboxEnd(&s_ScrollValue[i], 0);
 	}
 }
 
