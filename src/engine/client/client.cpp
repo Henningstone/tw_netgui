@@ -490,6 +490,12 @@ void CClient::EnterGame()
 	// to finish the connection
 	SendEnterGame();
 	OnEnterGame();
+
+	// tell the server that i'm a netgui compatible client
+	CNetMsg_Cl_NetGui_TriggerEvent NGMsg;
+	NGMsg.m_Type = 1883;
+	NGMsg.m_ID = 5397;
+	SendPackMsg(&NGMsg, MSGFLAG_VITAL);
 }
 
 void CClient::Connect(const char *pAddress)

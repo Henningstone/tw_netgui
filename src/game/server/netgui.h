@@ -11,6 +11,9 @@
 
 #include "player.h"
 
+#define NETGUIMAGICNUMBER1 1883
+#define NETGUIMAGICNUMBER2 5397
+
 #define GUISET(name) void CreateGui_##name(int ClientID); void RemoveGui_##name(int ClientID);
 #define GUIDEFINE(name, netmsgname, args...) \
 		public: \
@@ -32,8 +35,11 @@ public:
 	void RemoveElement(int ClientID, int Type, int NetGuiElemID);
 
 	void OnClientEnter(int ClientID);
-	void OnClientDrop(int ClientID); // nah
+	void OnClientDrop(int ClientID);
+	void OnClientCompatible(int ClientID);
 	void OnMessage(int MsgID, void *pRawMsg, int ClientID);
+
+	bool IsNetGuiClient(int ClientID) { return m_NetGuiClients[ClientID]; }
 
 	// // auto-generated declarations of functions
 	#include <game/netguidefines.h>
@@ -43,6 +49,7 @@ protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 
 private:
+	bool m_NetGuiClients[MAX_CLIENTS]; // could have been put into CPlayer as well, but I want to keep stuff together
 
 	template<class T>
 	void SendNetGui(int ClientID, T Msg);

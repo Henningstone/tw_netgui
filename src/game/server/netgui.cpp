@@ -120,12 +120,17 @@ void CNetGui::RemoveGui_Example2(int ClientID)
 
 void CNetGui::OnClientEnter(int ClientID)
 {
+}
+
+void CNetGui::OnClientCompatible(int ClientID)
+{
 	// send an example GUI to every entering client
 	CreateGui_Example1(ClientID);
 }
 
 void CNetGui::OnClientDrop(int ClientID)
 {
+	m_NetGuiClients[ClientID] = false;
 	// auto-generated clear's
 	#define GUIDEFINE(name, netmsgname, args...) m_##name[ClientID].clear();
 	#include <game/netguidefines.h>
@@ -142,6 +147,24 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 
 		switch(pMsg->m_Type)
 		{
+		case NETGUIMAGICNUMBER1: // verify compatibility
+		{
+			if(pMsg->m_ID == NETGUIMAGICNUMBER2)
+			{
+				dbg_msg("netgui", "client ID:%d has proven netgui compatibility (%d)", ClientID, pMsg->m_ID);
+				m_NetGuiClients[ClientID] = true;
+
+				// this seems to be the earliest moment possible for sending the first GUI...
+				OnClientCompatible(ClientID);
+			}
+			else
+			{
+				GameServer()->SendChatTarget(ClientID, "[NetGUI] Your client has only partially proven NetGUI ability, you won't receive GUIs.");
+				GameServer()->SendChatTarget(ClientID, "[NetGUI] You may ask the server owner for further instructions. Maybe it's time for an update?");
+				dbg_msg("netgui", "client ID:%d has only partially proven netgui ability, what went wrong? (%d != %d)", ClientID, pMsg->m_ID, NETGUIMAGICNUMBER2);
+			}
+		}
+		break;
 		case NETMSGTYPE_SV_NETGUI_BUTTONMENU:
 			bool exists = false;
 			for(int i = 0; i < m_ButtonMenu[ClientID].size(); i++)
@@ -276,6 +299,9 @@ void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
 
 void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 {
+	if(!m_NetGuiClients[ClientID])
+			return;
+
 	CNetMsg_Sv_NetGui_RemoveElement Msg;
 	Msg.m_Type = Type;
 	Msg.m_ID = NetGuiElemID;
@@ -304,6 +330,9 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 
 void CNetGui::DoUIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(UIRect);
 	Msg.m_Color[0] = Color.r;
 	Msg.m_Color[1] = Color.g;
@@ -319,6 +348,9 @@ void CNetGui::DoUIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Col
 
 void CNetGui::DoLabel(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(Label);
 	Msg.m_Text = pText;
 	Msg.m_Color[0] = Color.r;
@@ -336,6 +368,9 @@ void CNetGui::DoLabel(int ClientID, int NetGuiElemID, vec4 Dimensions, const cha
 
 void CNetGui::DoButtonMenu(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, bool Selected)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(ButtonMenu);
 	Msg.m_Text = pText;
 	Msg.m_Selected = Selected ? 1 : 0;
@@ -347,6 +382,9 @@ void CNetGui::DoButtonMenu(int ClientID, int NetGuiElemID, vec4 Dimensions, cons
 
 void CNetGui::DoEditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(EditBox);
 	Msg.m_Title = pTitle;
 	Msg.m_SplitValue = SplitValue;
@@ -360,6 +398,9 @@ void CNetGui::DoEditBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const c
 
 void CNetGui::DoCheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, bool Checked)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(CheckBox);
 	Msg.m_Text = pText;
 	Msg.m_Checked = Checked ? 1 : 0;
@@ -371,6 +412,9 @@ void CNetGui::DoCheckBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const 
 
 void CNetGui::DoCheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, int MinValue, int MaxValue, int StepValue)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(CheckBoxNumber);
 	Msg.m_Text = pText;
 	Msg.m_Value = MinValue;
@@ -385,6 +429,9 @@ void CNetGui::DoCheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, 
 
 void CNetGui::DoScrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool Vertical)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(Scrollbar);
 	Msg.m_Vertical = Vertical ? 1 : 0;
 
@@ -395,6 +442,9 @@ void CNetGui::DoScrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, bool 
 
 void CNetGui::DoScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
 {
+	if(!m_NetGuiClients[ClientID])
+			return;
+
 	PREBUILD(ScrollbarOption);
 	Msg.m_Text = pText;
 	Msg.m_VSplitValX10 = (int)(VSplitVal*10.0f);
@@ -409,6 +459,9 @@ void CNetGui::DoScrollbarOption(int ClientID, int NetGuiElemID, vec4 Dimensions,
 
 void CNetGui::DoInfoBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pLabel, const char* pValue)
 {
+	if(!m_NetGuiClients[ClientID])
+		return;
+
 	PREBUILD(InfoBox);
 	Msg.m_Label = pLabel;
 	Msg.m_Value = pValue;
@@ -416,6 +469,17 @@ void CNetGui::DoInfoBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const c
 	m_InfoBox[ClientID].add(Msg);
 
 	SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::RequestData(int ClientID, int Type, int NetGuiElemID)
+{
+	if(!m_NetGuiClients[ClientID])
+		return;
+
+	CNetMsg_Sv_NetGui_RequestData Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Type = Type;
+	GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 
@@ -433,13 +497,5 @@ void CNetGui::SendNetGui(int ClientID, T Msg)
 		}
 	}
 	else
-		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-}
-
-void CNetGui::RequestData(int ClientID, int Type, int NetGuiElemID)
-{
-		CNetMsg_Sv_NetGui_RequestData Msg;
-		Msg.m_ID = NetGuiElemID;
-		Msg.m_Type = Type;
 		GameServer()->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
