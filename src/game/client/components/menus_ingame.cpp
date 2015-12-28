@@ -19,8 +19,8 @@
 #include <game/client/ui.h>
 
 #include "menus.h"
-#include "netgui.h"
 #include "motd.h"
+#include "netgui.h"
 #include "voting.h"
 
 void CMenus::RenderGame(CUIRect MainView)

@@ -17,7 +17,6 @@
 #include <generated/client_data.h>
 
 #include <game/version.h>
-
 #include "localization.h"
 #include "render.h"
 

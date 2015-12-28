@@ -9,9 +9,9 @@
 #include <game/layers.h>
 #include <game/voting.h>
 
-#include "netgui.h"
 #include "eventhandler.h"
 #include "gameworld.h"
+#include "netgui.h"
 
 /*
 	Tick

@@ -98,7 +98,6 @@ public:
 		SERVERMODE_MOD,
 		SERVERMODE_PUREMOD,
 	};
-
 	int m_ServerMode;
 
 	int m_DemoSpecID;

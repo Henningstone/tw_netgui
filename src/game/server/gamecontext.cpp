@@ -647,7 +647,7 @@ void CGameContext::OnClientEnter(int ClientID)
 		Server()->SendPackMsg(&Msg, MSGFLAG_NOSEND, -1);
 	}
 
-	m_pNetGui->OnClientEnter(ClientID);
+	m_pNetGui->OnClientEnter(ClientID); // TODO: maybe remove this, might be depreciated
 }
 
 void CGameContext::OnClientConnected(int ClientID, bool Dummy)

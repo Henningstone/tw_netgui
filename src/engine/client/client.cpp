@@ -37,6 +37,8 @@
 
 #include <game/version.h>
 
+#include <generated/protocol.h>
+
 #include <mastersrv/mastersrv.h>
 #include <versionsrv/versionsrv.h>
 

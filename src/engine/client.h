@@ -3,8 +3,6 @@
 #ifndef ENGINE_CLIENT_H
 #define ENGINE_CLIENT_H
 
-#include <base/tl/sorted_array.h>
-#include <generated/protocol.h>
 #include "kernel.h"
 
 #include "message.h"
