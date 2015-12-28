@@ -41,4 +41,4 @@ public:
 	range all() const { return range(parent::list, parent::list+parent::num_elements); }
 };
 
-#endif // TL_FILE_SORTED_ARRAY_H
+#endif // TL_FILE_SORTED_ARRAY_HPP

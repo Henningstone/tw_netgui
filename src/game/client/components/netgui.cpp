@@ -68,7 +68,7 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			#undef GUIDEFINE
 		}
 	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTDATA) // TODO: respond data
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTDATA)
 	{
 		CNetMsg_Sv_NetGui_RequestData *pMsg = (CNetMsg_Sv_NetGui_RequestData *)pRawMsg;
 		switch(pMsg->m_Type)
@@ -108,11 +108,7 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
 		}
 		break;
-		case NETMSGTYPE_SV_NETGUI_LISTBOXSTART:
-			GUI_BUILDRESPONSE(ListboxStart, Int);
-			Reply.m_Value = m_NetGuiListboxStart[index].m_SelectedIndex;
-			Client()->SendPackMsg(&Reply, MSGFLAG_VITAL);
-		break;
+
 		}
 	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_UIRECT)
@@ -224,61 +220,5 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		e.m_Value = aBufValue;
 
 		GUIRECEIVE_FINALIZE(InfoBox);
-	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_LISTBOXHEADER)
-	{
-		GUIRECEIVE_INIT(ListboxHeader);
-
-		char* aBuf = (char*)mem_alloc(512, 0);
-		str_format(aBuf, 512, "%s", pMsg->m_Title);
-		e.m_Title = aBuf;
-		e.m_HeightX10 = pMsg->m_HeightX10;
-		e.m_SpacingX10 = pMsg->m_SpacingX10;
-
-		GUIRECEIVE_FINALIZE(ListboxHeader);
-	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_LISTBOXSTART)
-	{
-		GUIRECEIVE_INIT(ListboxStart);
-		char* aBuf = (char*)mem_alloc(512, 0);
-		str_format(aBuf, 512, "%s", pMsg->m_BottomText);
-		e.m_BottomText = aBuf;
-		e.m_RowHeightX10 = pMsg->m_RowHeightX10;
-		e.m_ItemsPerRow = pMsg->m_ItemsPerRow;
-		e.m_SelectedIndex = pMsg->m_SelectedIndex;
-		e.m_HeaderID = pMsg->m_HeaderID;
-		e.m_Background = pMsg->m_Background;
-
-		GUIRECEIVE_FINALIZE(ListboxStart);
-	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_LISTBOXITEMADD) // not a gui element
-	{
-		CNetMsg_Sv_NetGui_ListboxItemAdd *pMsg = (CNetMsg_Sv_NetGui_ListboxItemAdd *)pRawMsg;
-		sorted_array<CNetGui::CNetGuiListboxItem> *pItems = &m_pClient->m_pNetGui->m_NetGuiListBoxItems[pMsg->m_ListboxID];
-
-		char* aBuf = (char*)mem_alloc(512, 0);
-		str_format(aBuf, 512, "%s", pMsg->m_Text);
-
-		CNetGui::CNetGuiListboxItem e(pMsg->m_ID, aBuf);
-
-		// check for duplicated IDs
-		for(int i = 0; i < pItems->size(); i++)
-		{
-			if((*pItems)[i].m_ID == pMsg->m_ID)
-				pItems->remove_index(i);
-		}
-		pItems->add(e);
-	}
-	else if(MsgId == NETMSGTYPE_SV_NETGUI_LISTBOXITEMREMOVE) // not a gui element
-	{
-		CNetMsg_Sv_NetGui_ListboxItemRemove *pMsg = (CNetMsg_Sv_NetGui_ListboxItemRemove *)pRawMsg;
-		sorted_array<CNetGui::CNetGuiListboxItem> *pItems = &m_pClient->m_pNetGui->m_NetGuiListBoxItems[pMsg->m_ListboxID];
-
-		// go though all elements and find the one to remove
-		for(int i = 0; i < pItems->size(); i++)
-		{
-			if((*pItems)[i].m_ID == pMsg->m_ID)
-				pItems->remove_index(i);
-		}
 	}
 }
