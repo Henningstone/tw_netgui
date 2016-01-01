@@ -68,6 +68,26 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 			#undef GUIDEFINE
 		}
 	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_REMOVEALLELEMENTS)
+	{
+		CNetMsg_Sv_NetGui_RemoveElement *pMsg = (CNetMsg_Sv_NetGui_RemoveElement *)pRawMsg;
+
+		// remove handler; the "args..." thingy is just for compatiblity and will be dropped
+		#define GUIDEFINE(name, netmsgname, args...) \
+			case NETMSGTYPE_SV_NETGUI_##netmsgname: \
+					m_NetGui##name.clear(); break;
+
+		switch(pMsg->m_Type)
+		{
+			// auto-generated remove handlers
+			#include <game/netguidefines.h>
+			#undef GUIDEFINE
+		}
+	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_CLEARALL)
+	{
+		OnReset();
+	}
 	else if(MsgId == NETMSGTYPE_SV_NETGUI_REQUESTDATA)
 	{
 		CNetMsg_Sv_NetGui_RequestData *pMsg = (CNetMsg_Sv_NetGui_RequestData *)pRawMsg;

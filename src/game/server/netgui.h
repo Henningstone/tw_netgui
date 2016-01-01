@@ -33,6 +33,8 @@ class CNetGui
 public:
 	CNetGui(CGameContext *pGameServer) : m_pGameServer(pGameServer){}
 	void RemoveElement(int ClientID, int Type, int NetGuiElemID);
+	void RemoveAllElements(int ClientID, int Type);
+	void RemoveEverything(int ClientID);
 
 	void OnClientEnter(int ClientID);
 	void OnClientDrop(int ClientID);

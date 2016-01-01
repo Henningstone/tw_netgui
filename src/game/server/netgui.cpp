@@ -36,12 +36,7 @@ void CNetGui::CreateGui_Example1(int ClientID)
 }
 void CNetGui::RemoveGui_Example1(int ClientID)
 {
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 1);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 2);
+	RemoveEverything(ClientID);
 }
 
 void CNetGui::CreateGui_Example2(int ClientID)
@@ -87,33 +82,7 @@ void CNetGui::CreateGui_Example2(int ClientID)
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 1);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_UIRECT, 2);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 1);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 2);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 3);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 4);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 5);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 6);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_LABEL, 7);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 3);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 4);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 5);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 6);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 7);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 8);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 9);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 10);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_BUTTONMENU, 11);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_EDITBOX, 1);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOX, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_CHECKBOXNUMBER, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAR, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_SCROLLBAROPTION, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_INFOBOX, 0);
-	RemoveElement(ClientID, NETMSGTYPE_SV_NETGUI_INFOBOX, 1);
+	RemoveEverything(ClientID);
 }
 
 // ------------------------------ [end of GUI managing methods] -----------------------------
@@ -324,6 +293,19 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 		#undef GUIDEFINE
 	}
 
+	SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::RemoveAllElements(int ClientID, int Type)
+{
+	CNetMsg_Sv_NetGui_RemoveAllElements Msg;
+	Msg.m_Type = Type;
+	SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::RemoveEverything(int ClientID)
+{
+	CNetMsg_Sv_NetGui_ClearAll Msg;
 	SendNetGui(ClientID, Msg);
 }
 

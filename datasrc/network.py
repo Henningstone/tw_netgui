@@ -393,6 +393,13 @@ Messages = [
 		NetIntAny("m_Type"),
 		NetIntAny("m_ID"),
 	]),
+	
+	NetMessage("Sv_NetGui_RemoveAllElements", [
+		NetIntAny("m_Type"),
+	]),
+	
+	NetMessage("Sv_NetGui_ClearAll", [
+	]),
 
 	NetMessage("Sv_NetGui_RequestData", [
 		NetIntAny("m_ID"),
