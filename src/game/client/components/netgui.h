@@ -8,10 +8,18 @@
 
 class CNetGui : public CComponent
 {
+private:
+	static void ConMemPrint(IConsole::IResult *pResult, void *pUserData);
+	static void ConMemOptimize(IConsole::IResult *pResult, void *pUserData);
+
+public:
+	virtual void OnConsoleInit();
 	virtual void OnReset();
 	virtual void OnMessage(int MsgId, void *pRawMsg);
 
-public:
+	int GetMemoryUsage();
+	void OptimizeMemory();
+
 	// automatically make a storage array for everything
 	#define GUIDEFINE(name, netmsgname, args...) array<CNetMsg_Sv_NetGui_##name> m_NetGui##name;
 	#include <game/netguidefines.h>

@@ -37,9 +37,15 @@
 		SortNetGuiList<CNetMsg_Sv_NetGui_##name>(m_NetGui##name)
 
 
+void CNetGui::OnConsoleInit()
+{
+	Console()->Register("cl_netgui_memusage", "", 2, ConMemPrint, this, "Print netgui components memory usage");
+	Console()->Register("cl_netgui_memoptimize", "", 2, ConMemOptimize, this, "Optimize netgui components memory usage");
+}
+
 void CNetGui::OnReset()
 {
-	// auto-generated clear's
+	// auto-generated clears
 	#define GUIDEFINE(name, netmsgname, args...) m_NetGui##name.clear();
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
@@ -242,3 +248,51 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 		GUIRECEIVE_FINALIZE(InfoBox);
 	}
 }
+
+int CNetGui::GetMemoryUsage()
+{
+	int usage = 0;
+
+	#define GUIDEFINE(name, netmsgname, args...) usage += m_NetGui##name.memusage();
+	#include <game/netguidefines.h>
+	#undef GUIDEFINE
+
+	return usage;
+}
+
+void CNetGui::OptimizeMemory()
+{
+	#define GUIDEFINE(name, netmsgname, args...) m_NetGui##name.optimize();
+	#include <game/netguidefines.h>
+	#undef GUIDEFINE
+}
+
+void CNetGui::ConMemPrint(IConsole::IResult *pResult, void *pUserData)
+{
+	CNetGui *pSelf = ((CNetGui*)pUserData);
+
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "All component's memory usage: %d", pSelf->GetMemoryUsage());
+	pSelf->Console()->Print(0, "netgui", aBuf, false);
+}
+
+void CNetGui::ConMemOptimize(IConsole::IResult *pResult, void *pUserData)
+{
+	CNetGui *pSelf = ((CNetGui*)pUserData);
+
+	char aBuf[256];
+
+	int before = pSelf->GetMemoryUsage();
+	str_format(aBuf, sizeof(aBuf), "Memory usage before optimize: %d bytes", before);
+	pSelf->Console()->Print(0, "netgui", aBuf, false);
+
+	pSelf->OptimizeMemory();
+
+	int after = pSelf->GetMemoryUsage();
+	str_format(aBuf, sizeof(aBuf), "Memory usage after optimize: %d bytes", after);
+	pSelf->Console()->Print(0, "netgui", aBuf, false);
+
+	str_format(aBuf, sizeof(aBuf), "Memory freed: %d bytes", before - after);
+	pSelf->Console()->Print(0, "netgui", aBuf, false);
+}
+

@@ -467,7 +467,7 @@ void CMenus::RenderServerControlKick(CUIRect MainView, bool FilterSpectators)
 #define GUIPREPARE(name) \
 		for(int i = 0; i < m_pClient->m_pNetGui->m_NetGui##name.size(); i++)\
 		{\
-			if(i >= 1024) break;\
+			if(i >= 512) break;\
 			CUIRect Rect;\
 			CNetMsg_Sv_NetGui_##name *e = &m_pClient->m_pNetGui->m_NetGui##name[i];\
 			float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;\
@@ -524,7 +524,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// ButtonMenu
 	GUIPREPARE(ButtonMenu)
-		static int s_ID[1024] = {0}; // nobody will create so much buttons :p
+		static int s_ID[512] = {0}; // nobody will create so much buttons :P
 		if(DoButton_Menu(&s_ID[i], e->m_Text, e->m_Selected, &Rect))
 			m_pClient->m_pNetGui->SendEvent(NETMSGTYPE_SV_NETGUI_BUTTONMENU, e->m_ID);
 	}
@@ -532,9 +532,9 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// EditBox
 	GUIPREPARE(EditBox)
-		static char aText[1024][1024];
-		static float s_Offset[1024] = {0};
-		static int s_ID[1024] ={0};
+		static char aText[512][512];
+		static float s_Offset[512] = {0};
+		static int s_ID[512] ={0};
 		DoEditBoxOption((void *)&s_ID[i], aText[i], e->m_MaxTextWidth, &Rect, e->m_Title, ((float)e->m_SplitValue/100.0f)*Rect.w, &s_Offset[i], e->m_Password == 1 ? true : false);
 		str_copy(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i], aText[i], sizeof(m_pClient->m_pNetGui->m_aNetGuiEditBoxContent[i]));
 	}
@@ -542,7 +542,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// CheckBox
 	GUIPREPARE(CheckBox)
-		static int s_ID[1024] = {0};
+		static int s_ID[512] = {0};
 		if(DoButton_CheckBox(&s_ID[i], e->m_Text, e->m_Checked, &Rect))
 			e->m_Checked ^= 1;
 	}
@@ -550,7 +550,7 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// CheckBoxNumber
 	GUIPREPARE(CheckBoxNumber)
-		static int s_ID[1024] = {0};
+		static int s_ID[512] = {0};
 		int MouseButton = DoButton_CheckBox_Number(&s_ID[i], e->m_Text, e->m_Value, &Rect);
 		if(MouseButton == 1) // primary click
 		{
@@ -578,8 +578,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// Scrollbar
 	GUIPREPARE(Scrollbar)
-		static int s_ID[1024] = {0};
-		static float s_Value[1024] = {0.0f};
+		static int s_ID[512] = {0};
+		static float s_Value[512] = {0.0f};
 		if(e->m_Vertical)
 			s_Value[i] = DoScrollbarV(&s_ID[i], &Rect, s_Value[i]);
 		else
@@ -591,8 +591,8 @@ void CMenus::RenderNetGui(CUIRect MainView)
 
 	// ScrollbarOption
 	GUIPREPARE(ScrollbarOption)
-		static int s_ID[1024] = {0};
-		static int s_Value[1024] = {0};
+		static int s_ID[512] = {0};
+		static int s_Value[512] = {0};
 		DoScrollbarOption(&s_ID[i], &s_Value[i], &Rect, e->m_Text, (((float)e->m_VSplitValX10/10.0f)/100.0f)*Rect.w, e->m_MinValue, e->m_MaxValue, e->m_Infinite == 1 ? true : false);
 		e->m_Value = s_Value[i];
 	}
