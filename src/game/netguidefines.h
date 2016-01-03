@@ -6,13 +6,14 @@
 #ifdef GUIDEFINE
 GUIDEFINE(UIRect, UIRECT, vec4 Color, int Corner, float Rounding);
 GUIDEFINE(Label, LABEL, const char *pText, vec4 Color, int FontSize, int FontAlign, int MaxTextWidth);
-GUIDEFINE(ButtonMenu, BUTTONMENU, const char *pText, bool Selected);
+GUIDEFINE(ButtonMenu, BUTTONMENU, const char *pText, bool Selected = false);
 GUIDEFINE(EditBox, EDITBOX, const char *pTitle, int SplitValue, int MaxTextWidth, bool Password);
 GUIDEFINE(CheckBox, CHECKBOX, const char *pText, bool Checked);
 GUIDEFINE(CheckBoxNumber, CHECKBOXNUMBER, const char *pText, int MinValue, int MaxValue, int StepValue);
 GUIDEFINE(Scrollbar, SCROLLBAR, bool Vertical = false);
 GUIDEFINE(ScrollbarOption, SCROLLBAROPTION, const char *pText, float VSplitVal, int Min, int Max, bool Infinite);
 GUIDEFINE(InfoBox, INFOBOX, const char *pLabel, const char* pValue);
+GUIDEFINE(KeySelect, KEYSELECT, const char *pText, const char *pCommand, int VSplitVal = 65);
 #endif
 
 #endif

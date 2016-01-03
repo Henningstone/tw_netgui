@@ -9,8 +9,6 @@ class CBinds : public CComponent
 {
 	char m_aaKeyBindings[KEY_LAST][128];
 
-	int GetKeyID(const char *pKeyName);
-
 	static void ConBind(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnbind(IConsole::IResult *pResult, void *pUserData);
 	static void ConUnbindAll(IConsole::IResult *pResult, void *pUserData);
@@ -36,6 +34,7 @@ public:
 	void UnbindAll();
 	const char *Get(int KeyID);
 	const char *GetKey(const char *pBindStr);
+	int GetKeyID(const char *pKeyName);
 
 	virtual void OnConsoleInit();
 	virtual bool OnInput(IInput::CEvent Event);

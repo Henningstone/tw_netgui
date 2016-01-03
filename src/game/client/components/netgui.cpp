@@ -247,6 +247,20 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 
 		GUIRECEIVE_FINALIZE(InfoBox);
 	}
+	else if(MsgId == NETMSGTYPE_SV_NETGUI_KEYSELECT)
+	{
+		GUIRECEIVE_INIT(KeySelect);
+
+		char* aBufText = (char*)mem_alloc(512, 0);
+		str_format(aBufText, 512, "%s", pMsg->m_Text);
+		e.m_Text = aBufText;
+		char* aBufCmd = (char*)mem_alloc(512, 0);
+		str_format(aBufCmd, 512, "%s", pMsg->m_Command);
+		e.m_Command = aBufCmd;
+		e.m_VSplitVal = pMsg->m_VSplitVal;
+
+		GUIRECEIVE_FINALIZE(KeySelect);
+	}
 }
 
 int CNetGui::GetMemoryUsage()

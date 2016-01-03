@@ -18,6 +18,7 @@
 #include <game/client/render.h>
 #include <game/client/ui.h>
 
+#include "binds.h"
 #include "menus.h"
 #include "motd.h"
 #include "netgui.h"
@@ -601,6 +602,23 @@ void CMenus::RenderNetGui(CUIRect MainView)
 	// InfoBox
 	GUIPREPARE(InfoBox)
 		DoInfoBox(&Rect, e->m_Label, e->m_Value);
+	}
+
+	// KeySelect
+	GUIPREPARE(KeySelect)
+		static int s_ID[512] = {0};
+		RenderTools()->DrawUIRect(&Rect, vec4(0,0,0, 0.25), CUI::CORNER_ALL, 4.5f);
+		TextRender()->Text(0, Rect.x+2.5f, Rect.y, Rect.h*0.75f, e->m_Text, Rect.w*((float)e->m_VSplitVal/100.0f));
+		Rect.VSplitLeft(Rect.w*((float)e->m_VSplitVal/100.0f), 0, &Rect);
+		int OldId = m_pClient->m_pBinds->GetKeyID(m_pClient->m_pBinds->GetKey(e->m_Command));//e->m_KeyId;
+		int NewId = DoKeyReader((void *)&s_ID[i], &Rect, OldId);
+		if(NewId != OldId)
+		{
+			if(OldId != 0 || NewId == 0)
+				m_pClient->m_pBinds->Bind(OldId, "");
+			if(NewId != 0)
+				m_pClient->m_pBinds->Bind(NewId, e->m_Command);
+		}
 	}
 }
 

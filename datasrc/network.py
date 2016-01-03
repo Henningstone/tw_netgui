@@ -487,6 +487,14 @@ Messages = [
 		NetString("m_Value"),
 	]),
 	
+	NetMessage("Sv_NetGui_KeySelect", [
+		NetIntAny("m_ID"),
+		NetArray(NetIntRange("m_Dimension", 0, 100), 4),
+		NetString("m_Text"),
+		NetString("m_Command"),
+		NetIntRange("m_VSplitVal", 0, 100),
+	]),
+	
 	
 	## Client
 	NetMessage("Cl_NetGui_TriggerEvent", [ 

@@ -18,7 +18,7 @@
 // ----------------------------- [start of GUI managing methods] -----------------------------
 void CNetGui::CreateGui_ExampleClosed(int ClientID)
 {
-	DoButtonMenu(ClientID, 1, vec4(45-10, 45+10, 50-5, 50+5), "Open", 0);
+	DoButtonMenu(ClientID, 1, vec4(100-5-20-5-20, 100-5-5-20, 100-5-10, 100-5), "Open", 0);
 }
 void CNetGui::RemoveGui_ExampleClosed(int ClientID)
 {
@@ -31,8 +31,12 @@ void CNetGui::CreateGui_Example1(int ClientID)
 	DoLabel(ClientID, 0, vec4(0, 100, 0, 10), ">)^_^)> Welcome to this NetGUI server! :)", vec4(80, 0, 0, 90), 20, 1, 100-0);
 	DoLabel(ClientID, 1, vec4(0, 100, 10, 20), "(: Click the button! <(^_^(<", vec4(80, 0, 50, 80), 20, 1, 100-0);
 	DoLabel(ClientID, 2, vec4(1, 100, 96, 99), "NetGUI mod (c) 2015 by Henritees :P", vec4(100, 20, 20, 70), 10, 0, 100-1);
-	DoButtonMenu(ClientID, 0, vec4(45-10, 45+10, 50-5, 50+5), "Close", 0);
-	DoButtonMenu(ClientID, 2, vec4(100-5-20, 100-5, 100-5-10, 100-5), "Page 2 →", 0);
+	DoButtonMenu(ClientID, 0, vec4(100-5-20-5-20, 100-5-5-20, 100-5-10, 100-5), "Close");
+	DoButtonMenu(ClientID, 2, vec4(100-5-20, 100-5, 100-5-10, 100-5), "Page 2 →");
+	DoLabel(ClientID, 3, vec4(5, 40, 65-2, 70-2), "Server's Custom Keybinding!", vec4(0,0,100,80), 17, 1, 100);
+	DoKeySelect(ClientID, 0, vec4(5, 40, 70, 75), "Unfreeze (rescue)", "say /r");
+	DoKeySelect(ClientID, 1, vec4(5, 40, 75+2, 80+2), "Greez others ^^", "say Hey other Tees! :) This message was key-bound by the server!");
+	DoKeySelect(ClientID, 2, vec4(5, 40, 80+4, 85+4), "Exit the game", "quit");
 }
 void CNetGui::RemoveGui_Example1(int ClientID)
 {
@@ -45,18 +49,18 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	DoLabel(ClientID, 0, vec4(0, 100, 0, 10), ">)^_^)> Welcome to Page 2! :)", vec4(80, 0, 0, 90), 20, 1, 100-0);
 	DoLabel(ClientID, 1, vec4(0, 100, 10, 20), "(: Congraz for clicking! <(^_^(<", vec4(50, 0, 80, 80), 20, 1, 100-0);
 	DoLabel(ClientID, 2, vec4(1, 100, 96, 99), "NetGUI mod (c) 2015 by Henritees :P", vec4(100, 20, 20, 70), 10, 0, 100-1);
-	DoButtonMenu(ClientID, 3, vec4(100-5-20, 100-5, 100-5-10, 100-5), "← Page 1", 0);
+	DoButtonMenu(ClientID, 3, vec4(100-5-20, 100-5, 100-5-10, 100-5), "← Page 1");
 
-	DoButtonMenu(ClientID, 4, vec4(5, 15, 20+1, 25+1), "Kill me", 0);
+	DoButtonMenu(ClientID, 4, vec4(5, 15, 20+1, 25+1), "Kill me");
 	DoLabel(ClientID, 3, vec4(15+3, 100, 20+1, 25+1), "<- This button will kill you", vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
 
-	DoButtonMenu(ClientID, 5, vec4(5, 15, 25+3, 30+3), "Troll me :P", 0);
+	DoButtonMenu(ClientID, 5, vec4(5, 15, 25+3, 30+3), "Troll me :P");
 	DoLabel(ClientID, 4, vec4(15+3, 100, 25+3, 30+3), "<- This button will print some random shit into the chat ;)", vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
 
-	DoButtonMenu(ClientID, 6, vec4(5, 15, 30+5, 35+5), "F!ck me :P", 0);
+	DoButtonMenu(ClientID, 6, vec4(5, 15, 30+5, 35+5), "F!ck me :P");
 	DoLabel(ClientID, 5, vec4(15+3, 100, 30+5, 35+5), "<- Surprise motherf*ckr! ^(devil)^", vec4(30, 100, 20, 80), 13, 0, 100-(15+3));
 
-	DoButtonMenu(ClientID, 7, vec4(5, 15, 35+7, 40+7), "Print me :P", 0);
+	DoButtonMenu(ClientID, 7, vec4(5, 15, 35+7, 40+7), "Print me :P");
 	DoLabel(ClientID, 6, vec4(15+3, 100, 35+7, 40+7), "<- Print your login data (from below ↓) into the chat... public! mehe!", vec4(30, 100, 20, 80), 13, 0, 10);
 
 	DoUIRect(ClientID, 2, vec4(5, 50, 40+9, 60+15), vec4(0, 0, 40, 85), 15, 3.0f);
@@ -68,17 +72,16 @@ void CNetGui::CreateGui_Example2(int ClientID)
 	DoInfoBox(ClientID, 1, vec4(50+3, 90-3, 50+13, 55+13), "Infobox 2", "hm. <(ø_ø(<");
 
 	DoCheckBox(ClientID, 0, vec4(5, 50, 60+17, 65+17), "Whatever… but hey, I'm a checkbox so YOOO!", 0);
-	DoButtonMenu(ClientID, 8, vec4(50+3, 55+3, 60+17, 65+17), "»", 0);
+	DoButtonMenu(ClientID, 8, vec4(50+3, 55+3, 60+17, 65+17), "»");
 
 	DoCheckBoxNumber(ClientID, 0, vec4(5, 50, 65+19, 70+19), "Amazing Number-Checkbox ;)", 0, 16, 2);
-	DoButtonMenu(ClientID, 9, vec4(50+3, 55+3, 65+19, 70+19), "»", 0);
+	DoButtonMenu(ClientID, 9, vec4(50+3, 55+3, 65+19, 70+19), "»");
 
 	DoScrollbarOption(ClientID, 0, vec4(5, 50, 70+21, 75+21), "Scroooool-me-bar", 55.0f, 0, 100, false);
-	DoButtonMenu(ClientID, 10, vec4(50+3, 55+3, 70+21, 75+21), "»", 0);
+	DoButtonMenu(ClientID, 10, vec4(50+3, 55+3, 70+21, 75+21), "»");
 
 	DoScrollbar(ClientID, 0, vec4(90, 95, 5, 50), true);
-	DoButtonMenu(ClientID, 11, vec4(90, 95, 50+5, 60+5), "»", 0);
-
+	DoButtonMenu(ClientID, 11, vec4(90, 95, 50+5, 60+5), "»");
 }
 void CNetGui::RemoveGui_Example2(int ClientID)
 {
@@ -449,6 +452,21 @@ void CNetGui::DoInfoBox(int ClientID, int NetGuiElemID, vec4 Dimensions, const c
 	Msg.m_Value = pValue;
 
 	m_InfoBox[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
+
+void CNetGui::DoKeySelect(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, const char *pCommand, int VSplitVal)
+{
+	if(!m_NetGuiClients[ClientID])
+		return;
+
+	PREBUILD(KeySelect);
+	Msg.m_Text = pText;
+	Msg.m_Command = pCommand;
+	Msg.m_VSplitVal = VSplitVal;
+
+	m_KeySelect[ClientID].add(Msg);
 
 	SendNetGui(ClientID, Msg);
 }
