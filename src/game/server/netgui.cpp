@@ -104,7 +104,7 @@ void CNetGui::OnClientDrop(int ClientID)
 {
 	m_NetGuiClients[ClientID] = false;
 	// auto-generated clear's
-	#define GUIDEFINE(name, netmsgname, args...) m_##name[ClientID].clear();
+	#define GUIDEFINE(name, netmsgname, ...) m_##name[ClientID].clear();
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
 }
@@ -279,7 +279,7 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 	Msg.m_ID = NetGuiElemID;
 
 	// remove handler; the "args..." thingy is just for compatiblity and will be dropped
-	#define GUIDEFINE(name, netmsgname, args...) \
+	#define GUIDEFINE(name, netmsgname, ...) \
 		case NETMSGTYPE_SV_NETGUI_##netmsgname: \
 			for(int i = 0; i < m_##name[ClientID].size(); i++) \
 			{ \

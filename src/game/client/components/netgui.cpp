@@ -46,7 +46,7 @@ void CNetGui::OnConsoleInit()
 void CNetGui::OnReset()
 {
 	// auto-generated clears
-	#define GUIDEFINE(name, netmsgname, args...) m_NetGui##name.clear();
+	#define GUIDEFINE(name, netmsgname, ...) m_NetGui##name.clear();
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
 }
@@ -57,8 +57,8 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 	{
 		CNetMsg_Sv_NetGui_RemoveElement *pMsg = (CNetMsg_Sv_NetGui_RemoveElement *)pRawMsg;
 
-		// remove handler; the "args..." thingy is just for compatiblity and will be dropped
-		#define GUIDEFINE(name, netmsgname, args...) \
+		// remove handler; the va args is just for compatiblity and will be dropped
+		#define GUIDEFINE(name, netmsgname, ...) \
 			case NETMSGTYPE_SV_NETGUI_##netmsgname: \
 				for(int i = 0; i < m_NetGui##name.size(); i++) \
 				{ \
@@ -78,8 +78,8 @@ void CNetGui::OnMessage(int MsgId, void *pRawMsg)
 	{
 		CNetMsg_Sv_NetGui_RemoveElement *pMsg = (CNetMsg_Sv_NetGui_RemoveElement *)pRawMsg;
 
-		// remove handler; the "args..." thingy is just for compatiblity and will be dropped
-		#define GUIDEFINE(name, netmsgname, args...) \
+		// remove handler; the va args is just for compatiblity and will be dropped
+		#define GUIDEFINE(name, netmsgname, ...) \
 			case NETMSGTYPE_SV_NETGUI_##netmsgname: \
 					m_NetGui##name.clear(); break;
 
@@ -267,7 +267,7 @@ int CNetGui::GetMemoryUsage()
 {
 	int usage = 0;
 
-	#define GUIDEFINE(name, netmsgname, args...) usage += m_NetGui##name.memusage();
+	#define GUIDEFINE(name, netmsgname, ...) usage += m_NetGui##name.memusage();
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
 
@@ -276,7 +276,7 @@ int CNetGui::GetMemoryUsage()
 
 void CNetGui::OptimizeMemory()
 {
-	#define GUIDEFINE(name, netmsgname, args...) m_NetGui##name.optimize();
+	#define GUIDEFINE(name, netmsgname, ...) m_NetGui##name.optimize();
 	#include <game/netguidefines.h>
 	#undef GUIDEFINE
 }
