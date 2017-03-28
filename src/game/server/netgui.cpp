@@ -110,6 +110,7 @@ void CNetGui::OnClientDrop(int ClientID)
 	m_EditBox[ClientID].clear();
 	m_CheckBox[ClientID].clear();
 	m_CheckBoxNumber[ClientID].clear();
+	m_Scrollbar[ClientID].clear();
 }
 
 void CNetGui::OnMessage(int MsgID, void *pRawMsg, int ClientID)
@@ -282,7 +283,7 @@ void CNetGui::RemoveElement(int ClientID, int Type, int NetGuiElemID)
 	SendNetGui(ClientID, Msg);
 }
 
-void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, int RoundingX10)
+void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color, int Corner, float Rounding)
 {
 	CNetMsg_Sv_NetGui_UIRect Msg;
 	Msg.m_ID = NetGuiElemID;
@@ -295,7 +296,7 @@ void CNetGui::UIRect(int ClientID, int NetGuiElemID, vec4 Dimensions, vec4 Color
 	Msg.m_Color[2] = Color.b;
 	Msg.m_Color[3] = Color.a;
 	Msg.m_Corner = Corner;
-	Msg.m_RoundingX10 = RoundingX10;
+	Msg.m_RoundingX10 = (int)(Rounding*10.0f);
 
 	m_UIRect[ClientID].add(Msg);
 
@@ -392,6 +393,27 @@ void CNetGui::CheckBoxNumber(int ClientID, int NetGuiElemID, vec4 Dimensions, co
 
 	SendNetGui(ClientID, Msg);
 }
+
+void CNetGui::Scrollbar(int ClientID, int NetGuiElemID, vec4 Dimensions, const char *pText, float VSplitVal, int Min, int Max, bool Infinite)
+{
+	CNetMsg_Sv_NetGui_Scrollbar Msg;
+	Msg.m_ID = NetGuiElemID;
+	Msg.m_Text = pText;
+	Msg.m_VSplitValX10 = (int)(VSplitVal*10.0f);
+	Msg.m_MinValue = Min;
+	Msg.m_MaxValue = Max;
+	Msg.m_Infinite = Infinite ? 1 : 0;
+
+	Msg.m_Dimension[0] = Dimensions.x;
+	Msg.m_Dimension[1] = Dimensions.y;
+	Msg.m_Dimension[2] = Dimensions.a;
+	Msg.m_Dimension[3] = Dimensions.b;
+
+	m_Scrollbar[ClientID].add(Msg);
+
+	SendNetGui(ClientID, Msg);
+}
+
 
 template<class T>
 void CNetGui::SendNetGui(int ClientID, T Msg)

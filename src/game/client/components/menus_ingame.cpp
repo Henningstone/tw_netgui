@@ -655,6 +655,25 @@ void CMenus::RenderNetGui(CUIRect MainView)
 				e->m_Value -= e->m_StepValue;
 		}
 	}
+	for(int i = 0; i < m_pClient->m_pNetGui->m_NetGuiScrollbar.size(); i++)
+	{
+		if(i >= 1024) break;
+
+		CUIRect Rect;
+		CNetMsg_Sv_NetGui_Scrollbar *e = &m_pClient->m_pNetGui->m_NetGuiScrollbar[i];
+
+		float xa = MainView.x + ((float)e->m_Dimension[0]/100.0f) * MainView.w;
+		float xb = MainView.x + ((float)e->m_Dimension[1]/100.0f) * MainView.w;
+		float yb = MainView.y + ((float)e->m_Dimension[2]/100.0f) * MainView.h;
+		float ya = MainView.y + ((float)e->m_Dimension[3]/100.0f) * MainView.h;
+		Rect.x = xa;
+		Rect.y = ya;
+		Rect.w = xb - xa;
+		Rect.h = yb - ya;
+
+		static int s_ID[1024];
+		DoScrollbarOption(&s_ID[i], &e->m_Value, &Rect, e->m_Text, (int)e->m_VSplitValX10/10.0f, e->m_MinValue, e->m_MaxValue, e->m_Infinite ? true : false);
+	}
 }
 
 
